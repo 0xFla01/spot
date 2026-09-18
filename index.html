@@ -1,0 +1,475 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SPOT — every inch is for sale</title>
+    <meta name="description" content="Own a piece of this page. Buy a spot with $SPOT, put whatever you want in it. Anyone can take it from you for 1.5x." />
+
+    <!-- The card shown when the link is posted. These URLs must be ABSOLUTE and
+         correct in the served HTML: X, Telegram and Discord fetch the raw page
+         and never run JavaScript, so a runtime rewrite is invisible to them. -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://solspot.fun/" />
+    <meta property="og:site_name" content="SPOT" />
+    <meta property="og:title" content="SPOT — every inch is for sale" />
+    <meta property="og:description" content="Buy a spot with $SPOT. Put what you want in it. Anyone can take it off you for 1.5x." />
+    <meta property="og:image" content="https://solspot.fun/og.png" data-og-image />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="SPOT — every inch is for sale" />
+    <meta name="twitter:description" content="Buy a spot with $SPOT. Put what you want in it. Anyone can take it off you for 1.5x." />
+    <meta name="twitter:image" content="https://solspot.fun/og.png" data-twitter-image />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <canvas id="gl"></canvas>
+    <div class="grain"></div>
+    <div class="sweep"></div>
+
+    <div class="reticle">
+      <div class="reticle__ring"></div>
+      <div class="reticle__cross"></div>
+      <div class="reticle__label mono">claim</div>
+      <div class="reticle__egg">even me — press C</div>
+    </div>
+
+    <!-- how far down the page you are, as a surveyor's staff -->
+    <div class="staff" id="scroll-rule">
+      <div class="staff__track">
+        <div class="staff__fill"></div>
+        <div class="staff__ticks"></div>
+        <div class="staff__marker"><span class="staff__pct mono">0%</span></div>
+      </div>
+      <div class="staff__end mono">END</div>
+    </div>
+
+    <header class="nav">
+      <div class="nav__markwrap">
+        <a class="nav__mark" href="#top">SPOT</a>
+        <span class="nav__joke">sadly, you can't have this one</span>
+      </div>
+
+      <nav class="nav__meta mono">
+        <a href="#proof">Proof</a>
+        <a href="#how">How it works</a>
+        <a href="#wall">The wall</a>
+        <a href="#feed">Feed</a>
+      </nav>
+
+      <div class="nav__actions">
+        <a class="iconbtn" href="https://x.com" target="_blank" rel="noopener"
+           aria-label="X" title="X" data-x-link>
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/>
+          </svg>
+        </a>
+        <a class="iconbtn iconbtn--pump" href="https://pump.fun" target="_blank" rel="noopener"
+           aria-label="pump.fun" title="pump.fun" data-pump-link>
+          <svg viewBox="0 0 24 24" aria-hidden="true" class="pumpmark">
+            <g transform="rotate(-45 12 12)">
+              <path d="M12 1.5a5.75 5.75 0 0 1 5.75 5.75v4.4H6.25v-4.4A5.75 5.75 0 0 1 12 1.5Z" fill="#5CE08B"/>
+              <path d="M6.25 12.35h11.5v4.4a5.75 5.75 0 1 1-11.5 0v-4.4Z" fill="#F2F0E9"/>
+            </g>
+          </svg>
+        </a>
+        <a class="iconbtn" href="https://solscan.io" target="_blank" rel="noopener"
+           aria-label="Verify the burn on Solscan" title="Verify the burn on Solscan" data-solscan-link>
+          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+               stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="10.5" cy="10.5" r="6.5"/>
+            <path d="M15.4 15.4 21 21"/>
+            <path d="M7.6 11.6l2 2 3.8-4.4"/>
+          </svg>
+        </a>
+        <button class="btn btn--acid" id="reveal-btn">
+          <span class="btn__dot"></span><span data-reveal-label>Reveal spots</span>
+        </button>
+        <button class="btn" id="connect-btn"><span data-wallet-label>Connect</span></button>
+        <div class="walletchip" id="wallet-chip" hidden>
+          <button class="walletchip__name" id="wallet-name" title="Set your name">
+            <span data-wallet-display>—</span>
+          </button>
+          <span class="walletchip__bal mono" data-wallet-balance>0</span>
+          <button class="walletchip__x" id="wallet-disconnect" aria-label="Disconnect">&times;</button>
+        </div>
+      </div>
+    </header>
+
+    <div id="app">
+      <!-- ================= HERO ================= -->
+      <section class="hero" id="top">
+        <div class="hero__inner">
+          <div class="hero__kicker mono">
+            <span>Solana</span>
+            <span>Est. 2026</span>
+            <span data-stat="supply">46 deeds</span>
+          </div>
+
+          <h1 class="hero__title display">
+            <span class="hero__line"><span>Every</span></span>
+            <span class="hero__line"><span>inch</span></span>
+            <span class="hero__line">
+              <span class="hero__slotline">
+                is f<i class="inline-spot hero__inlinespot" data-spot="PIN-01"></i>r
+              </span>
+            </span>
+            <span class="hero__line"><span>sale</span></span>
+          </h1>
+
+          <div class="hero__foot">
+            <p class="lede" data-fade>
+              Buy a spot with <b>$SPOT</b>. Put whatever you want in it. Anyone can
+              take it off you for <b data-econ="multiplier">1.5&times;</b>, and
+              <b data-econ="seller">95%</b> of what they pay lands in your wallet.
+            </p>
+            <div class="hero__stats mono" data-fade>
+              <div class="hero__stat"><b data-stat="total">46</b><span>Spots</span></div>
+              <div class="hero__stat"><b data-stat="claimed">0</b><span>Claimed</span></div>
+              <div class="hero__stat"><b data-stat="burned">0</b><span>Burned</span></div>
+              <div class="hero__stat hero__stat--spot">
+                <div data-spot="PIN-02" style="width:52px;height:52px"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero__scroll mono"><span>Scroll</span><i></i></div>
+
+          <div data-spot="MON-01"></div>
+          <div class="hero__rail" data-spot="PLT-10"></div>
+        </div>
+      </section>
+
+      <!-- ================= PROOF ================= -->
+      <section class="proof" id="proof">
+        <div class="shead mono">
+          <span class="shead__n">01 / Proof</span>
+          <span>Every shape on this page is a deed</span>
+        </div>
+
+        <div class="proof__grid">
+          <div class="proof__copy">
+            <h2 class="h2">
+              <span class="h2__line">Yes.</span>
+              <span class="h2__line h2__slot">This too<i class="inline-spot h2__dot" data-spot="PIN-32"></i></span>
+            </h2>
+            <p class="lede" data-fade>
+              Not a banner farm. The layout itself is the inventory. Hit reveal and
+              the page shows you its own property lines.
+            </p>
+          </div>
+
+          <div class="proof__item proof__a"><div data-spot="PLT-01"></div></div>
+          <div class="proof__item proof__b"><div data-spot="PAR-01"></div></div>
+          <div class="proof__item proof__c"><div data-spot="PAR-02"></div></div>
+        </div>
+      </section>
+
+      <!-- ================= STRIP ================= -->
+      <section class="strip">
+        <div class="strip__head mono">
+          <span>Deeds are everywhere on this page, not just on the wall</span>
+          <span class="strip__hint">Press R</span>
+        </div>
+        <div class="strip__grid" id="strip-grid"></div>
+      </section>
+
+      <!-- ================= HOW ================= -->
+      <section class="how" id="how">
+        <div class="shead mono">
+          <span class="shead__n">02 / Mechanics</span>
+          <span>Claim &rarr; hold &rarr; get taken</span>
+        </div>
+
+        <div class="how__steps">
+          <article class="step">
+            <span class="step__n mono">01 — Claim</span>
+            <div class="step__spot" data-spot="PAR-03"></div>
+            <h3 class="step__t">Burn to own</h3>
+            <p class="step__p">
+              First buyer plants the flag. <b>100% of what you pay is burned</b> —
+              it never reaches a wallet. Supply drops, your picture goes up.
+            </p>
+          </article>
+
+          <article class="step">
+            <span class="step__n mono">02 — Hold</span>
+            <div class="step__spot" data-spot="PAR-04"></div>
+            <h3 class="step__t">Yours until it isn't</h3>
+            <p class="step__p">
+              Swap the image whenever you want. A <b>Monument</b> holder can run
+              video. Nobody can edit your spot but you.
+            </p>
+          </article>
+
+          <article class="step">
+            <span class="step__n mono">03 — Flip</span>
+            <div class="step__spot" data-spot="PAR-05"></div>
+            <h3 class="step__t">Taken at 1.5&times;</h3>
+            <p class="step__p">
+              Anyone can force a buyout at <b data-econ="multiplier">1.5&times;</b> the last
+              price, and <b data-econ="seller">95%</b> of it goes straight to you. You can
+              lose the spot. Losing it pays you <b data-econ="seller-return">1.43&times;</b>
+              what you put in.
+            </p>
+          </article>
+        </div>
+
+        <div class="how__mathrow">
+          <!-- filled from config.js so these can never drift from the code -->
+          <div class="how__math">
+            <div class="math__cell"><b data-econ="multiplier">1.5&times;</b><span class="mono">Forced buyout</span></div>
+            <div class="math__cell"><b data-econ="primary-burn">100%</b><span class="mono">Burned on first claim</span></div>
+            <div class="math__cell"><b data-econ="seller">95%</b><span class="mono">To the previous owner</span></div>
+            <div class="math__cell"><b data-econ="flip-burn">5%</b><span class="mono">Burned on every flip</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= EDITORIAL ================= -->
+      <section class="edit">
+        <div class="edit__grid">
+          <div class="edit__side">
+            <div class="edit__plot" data-spot="PLT-07"></div>
+          </div>
+
+          <div class="edit__body">
+            <p class="edit__text">
+              We are not selling advertising. We are selling the page. The margins
+              <i class="inline-spot edit__inline" data-spot="PIN-27"></i> the gaps between
+              paragraphs <i class="inline-spot edit__inline" data-spot="PIN-28"></i> the quiet
+              corner nobody looks at <i class="inline-spot edit__inline" data-spot="PIN-29"></i>.
+              If you can see it, someone can own it. Everything except the name at
+              the top, which stays ours.
+            </p>
+
+            <div class="edit__foot">
+                  <p class="mono edit__note">
+                Prices only move one way. Every flip sets a new floor at 1.5&times;.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ================= TICKER ================= -->
+      <section class="ticker" aria-hidden="true">
+        <div class="ticker__track" id="ticker-track">
+          <div class="ticker__row">
+            <span>This could be yours</span>
+            <i class="inline-spot ticker__spot" data-spot="PIN-38"></i>
+            <span>Buy it before he does</span>
+            <i class="inline-spot ticker__spot" data-spot="PAR-28"></i>
+            <span>Even this</span>
+            <i class="inline-spot ticker__spot" data-spot="PIN-39"></i>
+            <span>Nothing here is safe</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================= WALL ================= -->
+      <section class="wall" id="wall">
+        <div class="shead mono">
+          <span class="shead__n shead__slot">
+            <i class="inline-spot shead__zero" data-spot="PIN-33"></i>3 / The wall
+          </span>
+          <span data-stat="wall-count">Deeds available</span>
+        </div>
+        <div class="wall__grid" id="wall-grid"></div>
+      </section>
+
+      <!-- ================= FEED ================= -->
+      <section class="feed" id="feed">
+        <div class="shead mono">
+          <span class="shead__n">04 / Ledger</span>
+          <span>Who took what, from whom</span>
+        </div>
+
+        <div class="feed__layout">
+          <div class="feed__panel">
+            <div class="feed__bar mono">
+              <i class="feed__live"></i>
+              <span>Live</span>
+              <span style="margin-left:auto">On-chain settlement</span>
+            </div>
+            <div class="feed__sponsor" data-spot="PAR-27"></div>
+            <div class="feed__list" id="feed-list"></div>
+          </div>
+
+          <aside class="feed__rail">
+            <div class="feed__banner" data-spot="PLT-08"></div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ================= FOOTER ================= -->
+      <footer class="foot">
+        <div class="foot__top">
+          <div>
+            <p class="mono" style="color:var(--bone-mute);margin-bottom:0.8rem">Contract</p>
+            <p class="mono" id="mint-line">Mint address at launch</p>
+            <div class="foot__links">
+              <a class="iconbtn" href="https://x.com" target="_blank" rel="noopener"
+                 aria-label="X" title="X" data-x-link>
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path fill="currentColor" d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231 5.451-6.231Zm-1.161 17.52h1.833L7.084 4.126H5.117l11.966 15.644Z"/>
+                </svg>
+              </a>
+              <a class="iconbtn iconbtn--pump" href="https://pump.fun" target="_blank" rel="noopener"
+                 aria-label="pump.fun" title="pump.fun" data-pump-link>
+                <svg viewBox="0 0 24 24" aria-hidden="true" class="pumpmark">
+                  <g transform="rotate(-45 12 12)">
+                    <path d="M12 1.5a5.75 5.75 0 0 1 5.75 5.75v4.4H6.25v-4.4A5.75 5.75 0 0 1 12 1.5Z" fill="#5CE08B"/>
+                    <path d="M6.25 12.35h11.5v4.4a5.75 5.75 0 1 1-11.5 0v-4.4Z" fill="#F2F0E9"/>
+                  </g>
+                </svg>
+              </a>
+              <a class="iconbtn" href="https://solscan.io" target="_blank" rel="noopener"
+                   aria-label="Verify the burn on Solscan" title="Verify the burn on Solscan" data-solscan-link>
+              <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor"
+                       stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="10.5" cy="10.5" r="6.5"/>
+                    <path d="M15.4 15.4 21 21"/>
+                    <path d="M7.6 11.6l2 2 3.8-4.4"/>
+              </svg>
+        </a>
+            </div>
+          </div>
+
+          <div class="foot__banner" data-spot="PAR-26"></div>
+
+          <div class="foot__spots">
+            <div data-spot="PIN-19"></div>
+          </div>
+        </div>
+        <div class="foot__big">
+          <span class="foot__slot">Sp<i class="inline-spot foot__o" data-spot="PLT-09"></i>t</span>
+        </div>
+        <div class="foot__legal mono">
+          <span>&copy; 2026 Spot</span>
+          <span>Every inch is for sale. Except the logo.</span>
+        </div>
+      </footer>
+    </div>
+
+
+    <!-- ================= STUDIO ================= -->
+    <div class="studio" id="studio">
+      <div class="studio__scrim" data-st-close></div>
+      <div class="studio__card">
+        <div class="studio__head">
+          <div>
+            <div class="studio__id" data-st="id">PAR-06</div>
+            <span class="studio__tier mono" data-st="tier">Parcel</span>
+            <span class="studio__dims mono" data-st="dims"></span>
+          </div>
+          <button class="modal__x" data-st-close aria-label="Close">&times;</button>
+        </div>
+
+        <input type="file" data-st="file" name="spot-file" id="spot-file"
+               accept="image/png,image/jpeg,image/webp,image/gif,video/mp4,video/webm" hidden />
+
+        <div class="studio__stage">
+          <div class="studio__frame" data-st="frame" data-shape="square">
+            <div class="studio__layer" data-st="layer"></div>
+            <div class="studio__empty">
+              <b>Drop a picture</b>
+              <em class="mono" data-st="hint">PNG, JPG, WEBP or GIF. Up to 4MB.</em>
+            </div>
+            <span class="studio__grid"></span>
+          </div>
+        </div>
+
+        <div class="studio__controls">
+          <button class="btn" data-st="pick"><span>Choose file</span></button>
+          <label class="studio__zoom">
+            <span class="mono">Zoom</span>
+            <input type="range" name="spot-zoom" id="spot-zoom" data-st="zoom" min="1" max="3" step="0.01" value="1" disabled />
+          </label>
+        </div>
+
+        <div class="studio__rotate">
+          <span class="mono">Rotate</span>
+          <button class="turnbtn" data-st-turn="-90" title="Turn left" aria-label="Turn left" disabled>&#8630;</button>
+          <input type="range" name="spot-rotate" id="spot-rotate" data-st="rotate"
+                 min="-180" max="180" step="1" value="0" disabled />
+          <button class="turnbtn" data-st-turn="90" title="Turn right" aria-label="Turn right" disabled>&#8631;</button>
+          <span class="mono studio__deg" data-st="rotdeg">0&deg;</span>
+          <button class="turnbtn turnbtn--text" data-st="rotreset" title="Reset">Reset</button>
+        </div>
+
+        <p class="studio__status mono" data-st="status"></p>
+
+        <div class="modal__actions">
+          <button class="btn btn--acid" data-st="save" disabled><span>Save to my spot</span></button>
+          <button class="btn" data-st-close><span>Cancel</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= NAME ================= -->
+    <div class="namer" id="namer">
+      <div class="studio__scrim" data-nm-close></div>
+      <div class="namer__card">
+        <div class="studio__head">
+          <div>
+            <div class="studio__id">Your name</div>
+            <span class="studio__tier mono">Shown instead of your address</span>
+          </div>
+          <button class="modal__x" data-nm-close aria-label="Close">&times;</button>
+        </div>
+        <label class="studio__field">
+          <span class="mono">Display name</span>
+          <input type="text" name="spot-name" id="spot-name" data-nm="input" maxlength="18" placeholder="satoshi" />
+        </label>
+        <p class="studio__status mono" data-nm="status"></p>
+        <div class="modal__actions">
+          <button class="btn btn--acid" data-nm="save"><span>Save name</span></button>
+          <button class="btn" data-nm-close><span>Cancel</span></button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ================= CLAIM MODAL ================= -->
+    <div class="modal" id="modal">
+      <div class="modal__scrim" data-close></div>
+      <div class="modal__card">
+        <div class="modal__head">
+          <div>
+            <div class="modal__id" data-m="id">PAR-06</div>
+            <span class="modal__tier mono" data-m="tier">Parcel</span>
+          </div>
+          <button class="modal__x" data-close aria-label="Close">&times;</button>
+        </div>
+
+        <div class="modal__price">
+          <b data-m="price">250K</b>
+          <span class="mono">$SPOT</span>
+        </div>
+
+        <div class="modal__rows" data-m="rows"></div>
+
+        <p class="modal__note" data-m="note"></p>
+
+        <p class="modal__wallet mono" data-m="wallet"></p>
+
+        <div class="modal__actions">
+          <button class="btn btn--acid" data-m="buy"><span>Connect wallet</span></button>
+          <button class="btn" data-m="edit" hidden><span>Change picture</span></button>
+          <button class="btn" data-close><span>Cancel</span></button>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

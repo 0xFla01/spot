@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SPOT — voice test</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #07070A;
+        color: #EDEAE1;
+        font-family: 'Archivo', system-ui, sans-serif;
+        padding: 56px clamp(20px, 5vw, 80px) 80px;
+        max-width: 900px;
+      }
+      h1 {
+        font-variation-settings: 'wdth' 118, 'wght' 800;
+        font-size: clamp(2rem, 5vw, 3.4rem);
+        line-height: 0.9;
+        letter-spacing: -0.03em;
+        text-transform: uppercase;
+        margin-bottom: 14px;
+      }
+      .sub {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 12px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #C8FF2E;
+        margin-bottom: 44px;
+      }
+      .quote {
+        border-left: 2px solid #C8FF2E;
+        padding: 14px 20px;
+        background: rgba(200, 255, 46, 0.04);
+        font-size: 1.05rem;
+        line-height: 1.5;
+        color: rgba(237, 234, 225, 0.8);
+        margin-bottom: 40px;
+      }
+      .opt {
+        border: 1px solid rgba(237, 234, 225, 0.14);
+        border-radius: 8px;
+        padding: 22px 24px;
+        margin-bottom: 16px;
+        background: #0E0E13;
+      }
+      .opt h2 {
+        font-variation-settings: 'wdth' 112, 'wght' 700;
+        font-size: 1.3rem;
+        text-transform: uppercase;
+        letter-spacing: -0.01em;
+        margin-bottom: 4px;
+      }
+      .opt p {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        color: rgba(237, 234, 225, 0.45);
+        margin-bottom: 16px;
+        text-transform: uppercase;
+      }
+      audio { width: 100%; filter: invert(1) hue-rotate(180deg); }
+      .aside {
+        margin-top: 40px;
+        font-size: 0.95rem;
+        line-height: 1.6;
+        color: rgba(237, 234, 225, 0.55);
+      }
+      .aside b { color: #EDEAE1; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>Which voice?</h1>
+    <div class="sub">Both are free and local · press play</div>
+
+    <div class="quote">
+      "This is SPOT. Every inch of this page is for sale. Anyone can take it off
+      you, for one and a half times what you paid. You cannot stop them."
+    </div>
+
+    <div class="opt" style="border-color:rgba(200,255,46,0.35)">
+      <h2>Roger <span style="color:#C8FF2E;font-size:11px;letter-spacing:.2em">ELEVENLABS</span></h2>
+      <p>laid back · resonant · my pick for this script</p>
+      <audio controls src="voice/el-Roger.mp3"></audio>
+    </div>
+
+    <div class="opt" style="border-color:rgba(200,255,46,0.35)">
+      <h2>River <span style="color:#C8FF2E;font-size:11px;letter-spacing:.2em">ELEVENLABS</span></h2>
+      <p>neutral · informative · reads like a system notice</p>
+      <audio controls src="voice/el-River.mp3"></audio>
+    </div>
+
+    <div class="opt" style="border-color:rgba(200,255,46,0.35)">
+      <h2>Liam <span style="color:#C8FF2E;font-size:11px;letter-spacing:.2em">ELEVENLABS</span></h2>
+      <p>punchier · social media energy</p>
+      <audio controls src="voice/el-Liam.mp3"></audio>
+    </div>
+
+    <h2 style="margin-top:56px;color:rgba(237,234,225,0.35)">The Windows ones, for comparison</h2>
+
+    <div class="opt">
+      <h2>David</h2>
+      <p>male · flat · reads like a system notice</p>
+      <audio controls src="voice/sample-David.wav"></audio>
+    </div>
+
+    <div class="opt">
+      <h2>Zira</h2>
+      <p>female · slightly warmer</p>
+      <audio controls src="voice/sample-Zira.wav"></audio>
+    </div>
+
+    <p class="aside">
+      The top three are ElevenLabs, using your key. Pick one and I will render
+      all fourteen lines and cut them against the picture. The bottom two are
+      the Windows voices from before, kept so you can hear the difference.
+    </p>
+  </body>
+</html>

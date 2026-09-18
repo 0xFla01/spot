@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SPOT — profile mark</title>
+    <style>
+      /* Rendered at 500x500 with a 2x device pixel ratio, giving a 1000x1000 PNG.
+         The mark has to survive being shown at 32px in a timeline, so it is one
+         bold ring and nothing else fiddly: the O that runs through the whole
+         site, framed by the survey ticks that mark a claimable plot. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 500px; height: 500px; overflow: hidden; background: #07070A; }
+
+      .mark {
+        position: relative;
+        width: 500px;
+        height: 500px;
+        display: grid;
+        place-items: center;
+        background:
+          radial-gradient(120% 100% at 50% 115%, rgba(200, 255, 46, 0.16), transparent 62%),
+          radial-gradient(90% 80% at 22% 8%, rgba(255, 91, 35, 0.08), transparent 60%),
+          #07070A;
+      }
+
+      /* the O */
+      .ring {
+        width: 288px;
+        height: 288px;
+        border-radius: 50%;
+        border: 62px solid #C8FF2E;
+        box-shadow:
+          0 0 90px -10px rgba(200, 255, 46, 0.55),
+          inset 0 0 40px -18px rgba(0, 0, 0, 0.9);
+      }
+
+      /* registration marks: this inch is for sale */
+      .ticks { position: absolute; inset: 74px; }
+      .ticks i {
+        position: absolute;
+        width: 46px;
+        height: 46px;
+        border: 5px solid rgba(237, 234, 225, 0.42);
+      }
+      .ticks i:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+      .ticks i:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+      .ticks i:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+      .ticks i:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.05;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+    </style>
+  </head>
+  <body>
+    <div class="mark">
+      <div class="ticks"><i></i><i></i><i></i><i></i></div>
+      <div class="ring"></div>
+      <div class="grain"></div>
+    </div>
+  </body>
+</html>

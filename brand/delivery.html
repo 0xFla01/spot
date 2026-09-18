@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SPOT — how it should be read</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #07070A; color: #EDEAE1;
+        font-family: 'Archivo', system-ui, sans-serif;
+        padding: 52px clamp(20px, 5vw, 80px) 90px; max-width: 920px;
+      }
+      h1 {
+        font-variation-settings: 'wdth' 118, 'wght' 800;
+        font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 0.95;
+        letter-spacing: -0.03em; text-transform: uppercase; margin-bottom: 8px;
+      }
+      .sub {
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        letter-spacing: 0.2em; text-transform: uppercase; color: #C8FF2E;
+        margin-bottom: 38px;
+      }
+      .take {
+        border: 1px solid rgba(237,234,225,0.14); border-radius: 8px;
+        padding: 22px 24px; margin-bottom: 14px; background: #0E0E13;
+      }
+      .take.best { border-color: rgba(200,255,46,0.4); }
+      .take h2 {
+        font-variation-settings: 'wdth' 112, 'wght' 700;
+        font-size: 1.18rem; text-transform: uppercase; margin-bottom: 3px;
+      }
+      .take .tag {
+        font-family: 'JetBrains Mono', monospace; font-size: 10px;
+        letter-spacing: 0.18em; color: #C8FF2E; text-transform: uppercase;
+      }
+      .take p.how {
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        color: rgba(237,234,225,0.42); margin: 6px 0 14px; letter-spacing: 0.06em;
+      }
+      audio { width: 100%; filter: invert(1) hue-rotate(180deg); }
+      pre {
+        font-family: 'JetBrains Mono', monospace; font-size: 11.5px; line-height: 1.7;
+        color: rgba(237,234,225,0.6); background: #08080B; padding: 12px 14px;
+        border-radius: 5px; margin-top: 12px; white-space: pre-wrap;
+      }
+      pre b { color: #C8FF2E; font-weight: 500; }
+      .why { margin-top: 42px; font-size: 0.97rem; line-height: 1.65; color: rgba(237,234,225,0.6); }
+      .why b { color: #EDEAE1; font-weight: 600; }
+    </style>
+  </head>
+  <body>
+    <h1>Same voice.<br />Four ways of reading it.</h1>
+    <div class="sub">Liam · pick the one that sounds like a person</div>
+
+    <div class="take">
+      <h2>1 — As it was</h2>
+      <p class="how">what you already heard</p>
+      <audio controls src="voice/take-1-flat.mp3"></audio>
+      <pre>Anyone can take it off you. For one and a half times what you paid.
+You <b>cannot</b> stop them. But you <b>do not</b> lose. Ninety five percent
+of that goes straight to you.</pre>
+    </div>
+
+    <div class="take best">
+      <h2>2 — Written for speech</h2>
+      <p class="how">contractions · pauses written in · lower stability</p>
+      <audio controls src="voice/take-2-written-for-speech.mp3"></audio>
+      <pre>Anyone can take it off you<b>...</b> for one and a half times what you paid.
+
+And you <b>can't</b> stop them.
+
+But here's the thing <b>—</b> you <b>don't</b> lose. Ninety-five percent of that<b>?</b>
+Goes straight to you.</pre>
+    </div>
+
+    <div class="take">
+      <h2>3 — Looser</h2>
+      <p class="how">same words, more swing — can wander</p>
+      <audio controls src="voice/take-3-loose.mp3"></audio>
+    </div>
+
+    <div class="take best">
+      <h2>4 — Directed</h2>
+      <p class="how">v3 model · stage directions in the text</p>
+      <audio controls src="voice/take-4-v3-directed.mp3"></audio>
+      <pre><b>[casual]</b> Anyone can take it off you... for one and a half times what you paid.
+
+<b>[flat]</b> And you can't stop them.
+
+<b>[amused]</b> But here's the thing — you don't lose. <b>[emphasis]</b> Ninety-five
+percent of that goes straight to you.</pre>
+    </div>
+
+    <p class="why">
+      The voice was never the problem. Take 1 says <b>"you cannot stop them"</b> and
+      <b>"you do not lose"</b> — nobody speaks like that, so it comes out sounding
+      like a form letter being read aloud. Takes 2 and 4 use contractions, break
+      the lines apart so there is somewhere to breathe, and turn one statement
+      into a question so the emphasis lands on its own.
+      <br /><br />
+      Take 4 goes further: your key has the <b>v3</b> model, which reads stage
+      directions written into the text. That means the delivery can be directed
+      line by line — dry here, amused there — instead of hoping one setting fits
+      all fourteen lines.
+      <br /><br />
+      Tell me which, and I will rewrite all fourteen lines that way and cut them
+      against the picture.
+    </p>
+  </body>
+</html>

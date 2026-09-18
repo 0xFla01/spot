@@ -1,0 +1,62 @@
+[
+  {
+    "id": "01",
+    "cue": 1.5,
+    "file": "voice/film/01.mp3"
+  },
+  {
+    "id": "02",
+    "cue": 2.8,
+    "file": "voice/film/02.mp3"
+  },
+  {
+    "id": "02b",
+    "cue": 5.35,
+    "file": "voice/film/02b.mp3"
+  },
+  {
+    "id": "03",
+    "cue": 9.5,
+    "file": "voice/film/03.mp3"
+  },
+  {
+    "id": "04",
+    "cue": 12.5,
+    "file": "voice/film/04.mp3"
+  },
+  {
+    "id": "05",
+    "cue": 14.3,
+    "file": "voice/film/05.mp3"
+  },
+  {
+    "id": "06",
+    "cue": 18.2,
+    "file": "voice/film/06.mp3"
+  },
+  {
+    "id": "07",
+    "cue": 19.9,
+    "file": "voice/film/07.mp3"
+  },
+  {
+    "id": "08",
+    "cue": 24.6,
+    "file": "voice/film/08.mp3"
+  },
+  {
+    "id": "09",
+    "cue": 27.5,
+    "file": "voice/film/09.mp3"
+  },
+  {
+    "id": "10",
+    "cue": 30.6,
+    "file": "voice/film/10.mp3"
+  },
+  {
+    "id": "11",
+    "cue": 32.9,
+    "file": "voice/film/11.mp3"
+  }
+]

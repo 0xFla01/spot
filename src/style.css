@@ -1,0 +1,278 @@
+/* =========================================================================
+   SPOT — foundations
+   ========================================================================= */
+
+:root {
+  /* surface */
+  --ink:        #07070A;
+  --ink-raise:  #0E0E13;
+  --ink-line:   rgba(237, 234, 225, 0.10);
+  --ink-line-2: rgba(237, 234, 225, 0.18);
+
+  /* type */
+  --bone:       #EDEAE1;
+  --bone-dim:   rgba(237, 234, 225, 0.56);
+  --bone-mute:  rgba(237, 234, 225, 0.32);
+
+  /* state */
+  --acid:       #C8FF2E;   /* free / claimable */
+  --ember:      #FF5B23;   /* owned / flippable */
+  --acid-soft:  rgba(200, 255, 46, 0.14);
+  --ember-soft: rgba(255, 91, 35, 0.14);
+
+  /* rhythm */
+  --gutter: 4vw;
+  /* One vertical rhythm for every section, so the gap between any two is the
+     same wherever you are on the page. Two of these stack at each seam. */
+  --section-y: clamp(56px, 7vh, 96px);
+  --maxw: 1720px;   /* stop the layout from spreading on huge monitors */
+  --rule: 1px;
+
+  /* type scale */
+  --display: clamp(3rem, 10.6vw, 11rem);
+  --h2:      clamp(2rem, 5.6vw, 5.5rem);
+  --h3:      clamp(1.25rem, 2.2vw, 2rem);
+  --body:    clamp(0.95rem, 1.1vw, 1.125rem);
+  --mono:    clamp(0.625rem, 0.78vw, 0.75rem);
+}
+
+@font-face { font-family: 'ArchivoFallback'; src: local('Arial'); size-adjust: 96%; }
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  background: var(--ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--bone);
+  font-family: 'Archivo', 'ArchivoFallback', system-ui, sans-serif;
+  font-size: var(--body);
+  line-height: 1.45;
+  overflow-x: hidden;
+  cursor: none;
+}
+
+@media (pointer: coarse) { body { cursor: auto; } }
+
+h1, h2, h3, p, figure { margin: 0; }
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: 0; cursor: none; }
+img, video { display: block; max-width: 100%; }
+
+::selection { background: var(--acid); color: var(--ink); }
+
+/* --- shared type ------------------------------------------------------- */
+
+.mono {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+.display {
+  font-family: 'Archivo', 'ArchivoFallback', sans-serif;
+  font-variation-settings: 'wdth' 118, 'wght' 800;
+  font-size: var(--display);
+  line-height: 0.82;
+  letter-spacing: -0.035em;
+  text-transform: uppercase;
+}
+
+.h2 {
+  font-variation-settings: 'wdth' 112, 'wght' 750;
+  font-size: var(--h2);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+}
+
+.lede {
+  font-size: clamp(1rem, 1.5vw, 1.4rem);
+  line-height: 1.4;
+  color: var(--bone-dim);
+  max-width: 34ch;
+  text-wrap: balance;
+}
+
+.rule { height: var(--rule); background: var(--ink-line); width: 100%; }
+
+/* --- canvas + grain ---------------------------------------------------- */
+
+#gl {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.grain {
+  position: fixed;
+  inset: -50%;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.045;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation: grain 6s steps(6) infinite;
+}
+@keyframes grain {
+  0%   { transform: translate(0, 0) }
+  20%  { transform: translate(-4%, 3%) }
+  40%  { transform: translate(3%, -5%) }
+  60%  { transform: translate(-2%, 4%) }
+  80%  { transform: translate(5%, 2%) }
+  100% { transform: translate(0, 0) }
+}
+
+/* --- shell ------------------------------------------------------------- */
+
+#app { position: relative; z-index: 1; }
+section { position: relative; }
+
+.wrap { padding-inline: var(--gutter); }
+
+/* --- nav --------------------------------------------------------------- */
+
+.nav {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1.15rem var(--gutter);
+  mix-blend-mode: difference;
+  /* The bar is transparent, so deeds scrolling underneath stay visible. Letting
+     its empty width swallow their clicks would mean seeing a spot you cannot
+     buy. Only the controls themselves take the pointer. */
+  pointer-events: none;
+}
+.nav > *, .nav a, .nav button { pointer-events: auto; }
+
+.nav__mark {
+  font-variation-settings: 'wdth' 122, 'wght' 800;
+  font-size: 1.05rem;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+.nav__mark::before {
+  content: '';
+  width: 9px; height: 9px;
+  background: var(--acid);
+  border-radius: 50%;
+  animation: pulse 2.4s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1 } 50% { opacity: 0.25 } }
+
+.nav__meta { display: flex; gap: 1.6rem; color: var(--bone-mute); }
+@media (max-width: 860px) { .nav__meta { display: none } }
+
+.nav__actions { display: flex; gap: 0.5rem; align-items: center; }
+
+/* --- buttons ----------------------------------------------------------- */
+
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.62rem 1.05rem;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 100px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  overflow: hidden;
+  transition: color 0.35s, border-color 0.35s;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bone);
+  transform: translateY(101%);
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+  z-index: -1;
+}
+.btn:hover { color: var(--ink); border-color: var(--bone); }
+.btn:hover::after { transform: translateY(0); }
+.btn > * { position: relative; z-index: 1; }
+
+.btn--acid { border-color: rgba(200,255,46,0.5); color: var(--acid); }
+.btn--acid::after { background: var(--acid); }
+.btn--acid:hover { color: var(--ink); border-color: var(--acid); }
+
+.btn__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+
+/* --- reticle cursor ---------------------------------------------------- */
+
+.reticle {
+  position: fixed;
+  top: 0; left: 0;
+  opacity: 0;
+  z-index: 200;   /* above the modal and the studio, or it disappears on them */
+  pointer-events: none;
+  will-change: transform;
+  mix-blend-mode: difference;
+}
+.reticle.is-live { opacity: 1; transition: opacity 0.3s; }
+.reticle__ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  width: 26px; height: 26px;
+  margin: -13px 0 0 -13px;
+  border: 1px solid var(--bone);
+  border-radius: 50%;
+  transition: width 0.3s, height 0.3s, margin 0.3s, border-radius 0.3s, opacity 0.3s;
+}
+.reticle__cross::before,
+.reticle__cross::after {
+  content: '';
+  position: absolute;
+  background: var(--bone);
+}
+.reticle__cross::before { left: -7px; top: -0.5px; width: 14px; height: 1px; }
+.reticle__cross::after  { top: -7px; left: -0.5px; height: 14px; width: 1px; }
+
+.reticle__label {
+  position: absolute;
+  left: 22px; top: 12px;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(4px);
+  transition: opacity 0.25s, transform 0.25s;
+}
+body.is-hot .reticle.is-live { opacity: 1; transition: opacity 0.3s; }
+.reticle__ring { width: 58px; height: 58px; margin: -29px 0 0 -29px; }
+body.is-hot .reticle__label { opacity: 1; transform: translateY(0); }
+@media (pointer: coarse) { .reticle { display: none } }
+
+/* --- section header ---------------------------------------------------- */
+
+.shead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 2rem;
+  padding-block: 1rem 3rem;
+  border-top: var(--rule) solid var(--ink-line);
+  margin-top: 0;
+}
+.shead__n { color: var(--acid); }

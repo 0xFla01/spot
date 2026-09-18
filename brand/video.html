@@ -1,0 +1,581 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SPOT — launch film</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { background: #08080B; display: grid; place-items: center; min-height: 100vh; }
+      canvas { width: min(96vw, 1280px); height: auto; display: block; border-radius: 6px; }
+      #ui {
+        position: fixed; left: 16px; bottom: 16px;
+        font: 11px/1.6 ui-monospace, monospace; color: #C8FF2E;
+        letter-spacing: 0.12em; text-transform: uppercase;
+      }
+      button {
+        font: inherit; color: #08080B; background: #C8FF2E; border: 0;
+        padding: 8px 14px; border-radius: 99px; cursor: pointer; margin-right: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="c" width="1920" height="1080"></canvas>
+    <div id="ui">
+      <button id="play">Replay</button>
+      <button id="rec">Record</button>
+      <span id="status">ready</span>
+    </div>
+
+    <script>
+      // =====================================================================
+      // SPOT — launch film
+      //
+      // Drawn on a canvas rather than in the DOM for one reason: a canvas
+      // gives a real MediaStream, so the thing can be recorded to a video
+      // file. Everything is a pure function of time, so any frame can be
+      // drawn on demand and the film is identical every run.
+      // =====================================================================
+
+      const c = document.getElementById('c');
+      const x = c.getContext('2d');
+      const W = 1920, H = 1080;
+
+      const INK = '#08080B';
+      const BONE = '#EDEAE1';
+      const ACID = '#C8FF2E';
+      const EMBER = '#FF5B23';
+
+      // --- easing ---------------------------------------------------------
+      const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+      const outExpo = (t) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+      const outCubic = (t) => 1 - Math.pow(1 - t, 3);
+      const inOutCubic = (t) => (t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2);
+      const outBack = (t) => 1 + 2.7 * Math.pow(t - 1, 3) + 1.7 * Math.pow(t - 1, 2);
+      /** progress of a segment that runs from `a` to `b` seconds */
+      const seg = (t, a, b, ease = outCubic) => ease(clamp((t - a) / (b - a)));
+
+      // --- what goes in the O ---------------------------------------------
+      // Real pictures, the kind people actually put in a spot.
+      const ART = [];
+      const ART_FILES = ['chart-cat', 'coin-cat', 'neon-cat', 'all-inu'];
+      const artLoaded = Promise.all(
+        ART_FILES.map(
+          (name, i) =>
+            new Promise((done) => {
+              const img = new Image();
+              img.onload = () => { ART[i] = img; done(); };
+              // a missing file must not take the whole film down
+              img.onerror = () => { ART[i] = null; done(); };
+              img.src = `spots/${name}.png`;
+            })
+        )
+      );
+
+      // =====================================================================
+      // painters
+      // =====================================================================
+
+      function bg(t) {
+        x.fillStyle = INK;
+        x.fillRect(0, 0, W, H);
+
+        // slow drifting glow, the same two lights as the site
+        const g1 = x.createRadialGradient(W * 0.78, H * 1.05, 0, W * 0.78, H * 1.05, W * 0.6);
+        g1.addColorStop(0, 'rgba(200,255,46,0.14)');
+        g1.addColorStop(1, 'rgba(200,255,46,0)');
+        x.fillStyle = g1; x.fillRect(0, 0, W, H);
+
+        const g2 = x.createRadialGradient(W * 0.12 + Math.sin(t * 0.3) * 60, -60, 0, W * 0.12, -60, W * 0.5);
+        g2.addColorStop(0, 'rgba(255,91,35,0.09)');
+        g2.addColorStop(1, 'rgba(255,91,35,0)');
+        x.fillStyle = g2; x.fillRect(0, 0, W, H);
+      }
+
+      function grid(alpha) {
+        if (alpha <= 0) return;
+        x.save();
+        x.globalAlpha = alpha * 0.5;
+        x.strokeStyle = 'rgba(237,234,225,0.06)';
+        x.lineWidth = 1;
+        for (let i = 0; i <= W; i += 80) { x.beginPath(); x.moveTo(i, 0); x.lineTo(i, H); x.stroke(); }
+        for (let i = 0; i <= H; i += 80) { x.beginPath(); x.moveTo(0, i); x.lineTo(W, i); x.stroke(); }
+        x.restore();
+      }
+
+      /** the survey registration marks, drawn with a progress value */
+      function ticks(p, inset = 120, size = 54, colour = 'rgba(237,234,225,0.3)') {
+        if (p <= 0) return;
+        const len = size * outCubic(p);
+        x.save();
+        x.strokeStyle = colour;
+        x.lineWidth = 4;
+        const corners = [
+          [inset, inset, 1, 1], [W - inset, inset, -1, 1],
+          [inset, H - inset, 1, -1], [W - inset, H - inset, -1, -1],
+        ];
+        for (const [cx, cy, sx, sy] of corners) {
+          x.beginPath();
+          x.moveTo(cx, cy + sy * len); x.lineTo(cx, cy); x.lineTo(cx + sx * len, cy);
+          x.stroke();
+        }
+        x.restore();
+      }
+
+      function mono(text, px, cx, cy, colour = BONE, align = 'center', spacing = 0.2) {
+        x.save();
+        x.font = `500 ${px}px "JetBrains Mono", ui-monospace, monospace`;
+        x.fillStyle = colour;
+        x.textAlign = 'left';
+        x.textBaseline = 'middle';
+        const track = px * spacing;
+        const chars = [...text];
+        const total = chars.reduce((s, ch) => s + x.measureText(ch).width + track, -track);
+        let px0 = align === 'center' ? cx - total / 2 : align === 'right' ? cx - total : cx;
+        for (const ch of chars) { x.fillText(ch, px0, cy); px0 += x.measureText(ch).width + track; }
+        x.restore();
+      }
+
+      // --- the wordmark ----------------------------------------------------
+      const WORD_PX = 336;
+      function wordMetrics() {
+        x.font = `800 ${WORD_PX}px Archivo, sans-serif`;
+        const sp = x.measureText('SP').width;
+        const tw = x.measureText('T').width;
+        const ring = WORD_PX * 0.72;
+        const gapL = WORD_PX * 0.085, gapR = WORD_PX * 0.05;
+        const total = sp + gapL + ring + gapR + tw;
+        return { sp, tw, ring, gapL, gapR, total, left: (W - total) / 2 };
+      }
+
+      /**
+       * The mark. `ringP` draws the O's stroke, `art` is what is inside it,
+       * `artP` scales that in, `shake` jolts the whole thing on a takeover.
+       */
+      function wordmark(t, { sp = 1, tp = 1, ringP = 1, art = null, artP = 0, shake = 0, ringColour = ACID, y = H / 2 } = {}) {
+        const m = wordMetrics();
+        const jx = shake ? (Math.random() - 0.5) * shake : 0;
+        const jy = shake ? (Math.random() - 0.5) * shake : 0;
+
+        x.save();
+        x.translate(jx, jy);
+        x.font = `800 ${WORD_PX}px Archivo, sans-serif`;
+        x.textBaseline = 'alphabetic';
+        x.fillStyle = BONE;
+        x.textAlign = 'left';
+
+        const base = y + WORD_PX * 0.36;
+
+        // SP slides in from the left, T from the right
+        x.save();
+        x.globalAlpha = clamp(sp);
+        x.translate(-(1 - clamp(sp)) * 260, 0);
+        x.fillText('SP', m.left, base);
+        x.restore();
+
+        x.save();
+        x.globalAlpha = clamp(tp);
+        x.translate((1 - clamp(tp)) * 260, 0);
+        x.fillText('T', m.left + m.sp + m.gapL + m.ring + m.gapR, base);
+        x.restore();
+
+        // the O
+        const r = m.ring / 2;
+        const ox = m.left + m.sp + m.gapL + r;
+        const oy = y + WORD_PX * 0.36 - r - WORD_PX * 0.005;
+
+        if (art && artP > 0) {
+          x.save();
+          x.beginPath();
+          x.arc(ox, oy, r - WORD_PX * 0.077, 0, Math.PI * 2);
+          x.clip();
+          const s = 0.7 + 0.3 * outBack(clamp(artP));
+          const d = (r - WORD_PX * 0.077) * 2 * s;
+          x.globalAlpha = clamp(artP * 1.4);
+          x.drawImage(art, ox - d / 2, oy - d / 2, d, d);
+          x.restore();
+        }
+
+        if (ringP > 0) {
+          x.save();
+          x.strokeStyle = ringColour;
+          x.lineWidth = WORD_PX * 0.155;
+          x.lineCap = 'butt';
+          x.shadowColor = ringColour;
+          x.shadowBlur = 60;
+          x.beginPath();
+          x.arc(ox, oy, r - x.lineWidth / 2, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * clamp(ringP));
+          x.stroke();
+          x.restore();
+        }
+        x.restore();
+        return { ox, oy, r };
+      }
+
+      // --- the reticle, the site's cursor ----------------------------------
+      function reticle(cx, cy, size = 34, label = '', pressed = 0) {
+        x.save();
+        x.strokeStyle = BONE;
+        x.lineWidth = 2;
+        const s = size * (1 - pressed * 0.22);
+        x.beginPath(); x.arc(cx, cy, s, 0, Math.PI * 2); x.stroke();
+        x.beginPath();
+        x.moveTo(cx - s * 0.5, cy); x.lineTo(cx + s * 0.5, cy);
+        x.moveTo(cx, cy - s * 0.5); x.lineTo(cx, cy + s * 0.5);
+        x.stroke();
+        if (label) mono(label, 26, cx + s + 22, cy, ACID, 'left', 0.14);
+        x.restore();
+      }
+
+      /** a price chip like the ones on the site */
+      function chip(text, cx, cy, p = 1, colour = ACID) {
+        if (p <= 0) return;
+        x.save();
+        x.globalAlpha = clamp(p);
+        x.font = '700 28px "JetBrains Mono", monospace';
+        const w = x.measureText(text).width + 34;
+        const h = 50;
+        x.translate(cx, cy - (1 - clamp(p)) * 14);
+        x.fillStyle = colour;
+        x.beginPath(); x.roundRect(-w / 2, -h / 2, w, h, 5); x.fill();
+        x.fillStyle = INK;
+        x.textAlign = 'center'; x.textBaseline = 'middle';
+        x.fillText(text, 0, 1);
+        x.restore();
+      }
+
+      // --- the wipe that cuts between scenes -------------------------------
+      function wipe(p) {
+        if (p <= 0 || p >= 1) return;
+        const e = inOutCubic(p);
+        const bw = W * 0.18;
+        const cx = -bw + (W + bw * 2) * e;
+        const g = x.createLinearGradient(cx - bw, 0, cx + bw, 0);
+        g.addColorStop(0, 'rgba(200,255,46,0)');
+        g.addColorStop(0.45, 'rgba(200,255,46,0.9)');
+        g.addColorStop(0.55, ACID);
+        g.addColorStop(1, 'rgba(200,255,46,0)');
+        x.fillStyle = g;
+        x.fillRect(cx - bw, 0, bw * 2, H);
+      }
+
+      // --- burn particles ---------------------------------------------------
+      const embers = [];
+      function spawnEmbers(cx, cy, n) {
+        for (let i = 0; i < n; i++) {
+          embers.push({
+            x: cx + (Math.random() - 0.5) * 220,
+            y: cy + (Math.random() - 0.5) * 120,
+            vx: (Math.random() - 0.5) * 1.4,
+            vy: -0.8 - Math.random() * 1.8,
+            life: 1, size: 2 + Math.random() * 4,
+          });
+        }
+      }
+      function drawEmbers() {
+        x.save();
+        for (let i = embers.length - 1; i >= 0; i--) {
+          const e = embers[i];
+          e.x += e.vx; e.y += e.vy; e.vy -= 0.006; e.life -= 0.012;
+          if (e.life <= 0) { embers.splice(i, 1); continue; }
+          x.globalAlpha = e.life;
+          x.fillStyle = e.life > 0.55 ? ACID : EMBER;
+          x.fillRect(e.x, e.y, e.size, e.size);
+        }
+        x.restore();
+      }
+
+      function scan(t) {
+        x.save();
+        x.globalAlpha = 0.035;
+        x.fillStyle = '#000';
+        for (let yy = (t * 40) % 4; yy < H; yy += 4) x.fillRect(0, yy, W, 2);
+        x.restore();
+      }
+
+      function vignette() {
+        const g = x.createRadialGradient(W / 2, H / 2, H * 0.3, W / 2, H / 2, H * 0.95);
+        g.addColorStop(0, 'rgba(0,0,0,0)');
+        g.addColorStop(1, 'rgba(0,0,0,0.55)');
+        x.fillStyle = g; x.fillRect(0, 0, W, H);
+      }
+
+      // =====================================================================
+      // the film
+      // =====================================================================
+      const DURATION = 37.4;
+
+      function frame(t) {
+        bg(t);
+        grid(seg(t, 0.4, 2.2));
+        ticks(seg(t, 0.2, 1.6));
+
+        // ---- 1. the mark builds -----------------------------------------
+        if (t < 9.0) {
+          wordmark(t, {
+            sp: seg(t, 1.0, 2.1, outExpo),
+            tp: seg(t, 1.2, 2.3, outExpo),
+            ringP: seg(t, 1.9, 3.1, outCubic),
+            y: H / 2 - 40,
+          });
+          if (t > 2.85) {
+            const p = seg(t, 2.85, 3.6);
+            x.save(); x.globalAlpha = p;
+            mono('ALMOST EVERY INCH IS FOR SALE', 38, W / 2, H / 2 + 230, 'rgba(237,234,225,0.7)', 'center', 0.42);
+            x.restore();
+          }
+          // prices pop onto the letters: everything here is for sale
+          if (t > 5.4 && t < 8.9) {
+            const m = wordMetrics();
+            const base = H / 2 - 40 + WORD_PX * 0.36;
+            chip('1.25M', m.left + m.sp * 0.5, base - WORD_PX * 0.86, seg(t, 5.5, 5.9));
+            chip('250K', m.left + m.sp + m.gapL + m.ring / 2, base - WORD_PX * 0.98, seg(t, 6.2, 6.6));
+            chip('500K', m.left + m.total - m.tw * 0.5, base - WORD_PX * 0.86, seg(t, 7.25, 7.65));
+          }
+        }
+
+        wipe(seg(t, 8.6, 9.3, (v) => v));
+
+        // ---- 2. the O fills, then flicks through pictures -----------------
+        if (t >= 8.85 && t < 14.2) {
+          const which = t < 11.3 ? 0 : t < 11.9 ? 1 : t < 12.5 ? 2 : 3;
+          wordmark(t, {
+            art: ART[which],
+            artP: t < 11.3 ? seg(t, 9.7, 10.6, outBack) : 1,
+            y: H / 2 - 40,
+          });
+          x.save(); x.globalAlpha = seg(t, 9.9, 10.6);
+          mono('PUT WHATEVER YOU WANT IN IT', 38, W / 2, H / 2 + 230, 'rgba(237,234,225,0.7)', 'center', 0.42);
+          x.restore();
+        }
+
+        // ---- 3. the takeover, the whole point ----------------------------
+        if (t >= 14.0 && t < 27.6) {
+          const taken = t >= 17.6;
+          const shake = t >= 17.6 && t < 17.95 ? 26 : 0;
+
+          const o = wordmark(t, {
+            art: taken ? ART[3] : ART[1],
+            artP: taken ? seg(t, 17.65, 18.2, outBack) : 1,
+            shake,
+            ringColour: taken ? EMBER : ACID,
+            y: H / 2 - 40,
+          });
+
+          // a second cursor comes for it
+          if (t > 14.9 && t < 20.5) {
+            const inP = seg(t, 14.9, 16.3, outCubic);
+            const cx = W + 200 - (W * 0.53 + 200) * inP;
+            const cy = H / 2 + 120 - 150 * inP;
+            const press = t > 17.45 && t < 17.8 ? 1 : 0;
+            const hovering = t > 16.1;
+            reticle(cx, cy, 46, hovering ? (taken ? 'TAKEN' : 'TAKE · 375K') : '', press);
+          }
+
+          // the price ladder ticks up the moment it is taken
+          const m = wordMetrics();
+          const base = H / 2 - 40 + WORD_PX * 0.36;
+          if (t > 16.3) {
+            const p = seg(t, 16.3, 16.7);
+            chip(taken ? '375K' : '250K', m.left + m.sp + m.gapL + m.ring / 2, base - WORD_PX * 0.98, p, taken ? EMBER : ACID);
+          }
+
+          x.save();
+          x.globalAlpha = taken ? seg(t, 17.9, 18.5) : seg(t, 15.3, 16.0);
+          mono(taken ? 'IT IS NOT YOURS ANY MORE' : 'ANYONE CAN TAKE IT OFF YOU', 38, W / 2, H / 2 + 230,
+               taken ? EMBER : 'rgba(237,234,225,0.7)', 'center', 0.42);
+          x.restore();
+
+          // where the money went
+          if (t > 21.3) {
+            // keyed to the narration, not to round numbers: '95%' appears as
+            // he says "ninety-five percent" (21.38s) and '5% BURNED' as he
+            // starts "the rest of it..." (24.70s)
+            const p1 = seg(t, 21.35, 21.95);
+            const p2 = seg(t, 24.7, 25.3);
+            x.save();
+            x.globalAlpha = p1;
+            mono('95% TO YOU', 58, W / 2 - 380, H / 2 + 370, ACID, 'center', 0.16);
+            x.restore();
+            x.save();
+            x.globalAlpha = p2;
+            mono('5% BURNED', 58, W / 2 + 380, H / 2 + 370, EMBER, 'center', 0.16);
+            x.restore();
+            if (t > 25.8 && t < 27.6 && Math.random() > 0.5) spawnEmbers(W / 2 + 380, H / 2 + 370, 3);
+          }
+        }
+
+        wipe(seg(t, 27.1, 27.8, (v) => v));
+
+        // ---- 4. it only goes up ------------------------------------------
+        if (t >= 27.3 && t < 30.9) {
+          const steps = ['250K', '375K', '562K', '843K', '1.26M'];
+          x.save();
+          x.globalAlpha = seg(t, 27.6, 28.0);
+          mono('THE PRICE ONLY GOES ONE WAY', 38, W / 2, H / 2 - 300, 'rgba(237,234,225,0.7)', 'center', 0.42);
+          x.restore();
+          steps.forEach((s, i) => {
+            const at = 28.0 + i * 0.38;
+            const p = seg(t, at, at + 0.36, outBack);
+            if (p <= 0) return;
+            const yy = H / 2 - 150 + i * 112;
+            x.save();
+            x.globalAlpha = clamp(p);
+            x.font = `800 ${88 + i * 14}px Archivo, sans-serif`;
+            x.textAlign = 'center'; x.textBaseline = 'middle';
+            x.fillStyle = i === steps.length - 1 ? ACID : `rgba(237,234,225,${0.35 + i * 0.16})`;
+            x.fillText(s, W / 2, yy);
+            x.restore();
+          });
+        }
+
+        wipe(seg(t, 30.4, 31.0, (v) => v));
+
+        // ---- 5. the sign-off ---------------------------------------------
+        if (t >= 30.6) {
+          wordmark(t, {
+            ringP: 1,
+            art: null,
+            y: H / 2 - 30,
+          });
+          const m = wordMetrics();
+          const base = H / 2 - 30 + WORD_PX * 0.36;
+          // the last joke: the O in our own logo is for sale too
+          chip('EVEN THIS · 250K', m.left + m.sp + m.gapL + m.ring / 2, base - WORD_PX * 0.98, seg(t, 31.3, 31.8));
+          x.save();
+          x.globalAlpha = seg(t, 32.4, 33.1);
+          mono('ALMOST EVERY INCH IS FOR SALE', 40, W / 2, H / 2 + 240, BONE, 'center', 0.42);
+          x.restore();
+          x.save();
+          x.globalAlpha = seg(t, 34.6, 35.3);
+          mono('$SPOT · SOLANA', 30, W / 2, H / 2 + 340, ACID, 'center', 0.3);
+          x.restore();
+        }
+
+        drawEmbers();
+        ticks(seg(t, 0.2, 1.6), 120, 54);
+        scan(t);
+        vignette();
+
+        // fade in and out at the ends
+        const fade = Math.min(seg(t, 0, 0.5, (v) => v), 1 - seg(t, DURATION - 0.8, DURATION, (v) => v));
+        if (fade < 1) { x.fillStyle = `rgba(8,8,11,${1 - fade})`; x.fillRect(0, 0, W, H); }
+      }
+
+      // =====================================================================
+      // the narration
+      //
+      // Each line is its own file, fired at its cue. They are routed through a
+      // Web Audio graph so the recorder can take the sound as a track rather
+      // than the video coming out silent and needing a second pass.
+      // =====================================================================
+      let audioCtx = null, voiceOut = null;
+      const voice = [];
+
+      async function loadVoice() {
+        let cues = [];
+        try {
+          cues = await (await fetch('voice/film/cues.json')).json();
+        } catch {
+          return; // no narration yet, the film still plays
+        }
+        audioCtx = new AudioContext();
+        voiceOut = audioCtx.createMediaStreamDestination();
+
+        const gain = audioCtx.createGain();
+        gain.gain.value = 1.0;
+        gain.connect(voiceOut);
+        gain.connect(audioCtx.destination); // so it is audible while previewing
+
+        for (const c of cues) {
+          const el = new Audio(c.file);
+          el.crossOrigin = 'anonymous';
+          el.preload = 'auto';
+          const src = audioCtx.createMediaElementSource(el);
+          src.connect(gain);
+          voice.push({ ...c, el, fired: false });
+        }
+        await Promise.all(
+          voice.map((v) => new Promise((r) => {
+            if (v.el.readyState >= 3) return r();
+            v.el.oncanplaythrough = r;
+            v.el.onerror = r;
+          }))
+        );
+      }
+
+      // =====================================================================
+      // playback + recording
+      // =====================================================================
+      let start = 0, raf = 0;
+      function play() {
+        cancelAnimationFrame(raf);
+        embers.length = 0;
+        for (const v of voice) { v.fired = false; v.el.pause(); v.el.currentTime = 0; }
+        audioCtx?.resume();
+        start = performance.now();
+        const loop = (now) => {
+          const t = (now - start) / 1000;
+          frame(Math.min(t, DURATION));
+          for (const v of voice) {
+            if (!v.fired && t >= v.cue) { v.fired = true; v.el.play().catch(() => {}); }
+          }
+          if (t < DURATION) raf = requestAnimationFrame(loop);
+        };
+        raf = requestAnimationFrame(loop);
+      }
+
+      async function record() {
+        const status = document.getElementById('status');
+        const stream = c.captureStream(60);
+        // narration rides along as a second track, so one file comes out with
+        // picture and sound already together
+        if (voiceOut) for (const tr of voiceOut.stream.getAudioTracks()) stream.addTrack(tr);
+        const types = [
+          'video/webm;codecs=vp9,opus', 'video/webm;codecs=vp8,opus', 'video/webm',
+        ];
+        const mimeType = types.find((t) => MediaRecorder.isTypeSupported(t));
+        const rec = new MediaRecorder(stream, { mimeType, videoBitsPerSecond: 12_000_000, audioBitsPerSecond: 160_000 });
+        const chunks = [];
+        rec.ondataavailable = (e) => e.data.size && chunks.push(e.data);
+
+        const done = new Promise((res) => (rec.onstop = res));
+        rec.start(250);
+        status.textContent = 'recording…';
+        play();
+        await new Promise((r) => setTimeout(r, (DURATION + 0.4) * 1000));
+        rec.stop();
+        await done;
+
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        window.__film = blob;
+        window.__filmReady = true;
+        status.textContent = `done · ${(blob.size / 1048576).toFixed(1)}MB`;
+        return blob;
+      }
+
+      /** hands the finished file to whatever is driving the page */
+      window.__save = async (name = 'spot-film.webm') => {
+        const blob = window.__film || (await record());
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        return blob.size;
+      };
+
+      document.getElementById('play').onclick = play;
+      document.getElementById('rec').onclick = record;
+      window.__record = record;
+
+      Promise.all([document.fonts.ready, artLoaded, loadVoice()]).then(() => {
+        frame(0);
+        window.__ready = true;
+      });
+    </script>
+  </body>
+</html>

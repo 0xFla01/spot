@@ -1,0 +1,669 @@
+/* =========================================================================
+   SPOT — the ownable unit
+   ========================================================================= */
+
+.spot {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  isolation: isolate;
+  container-type: size;   /* the plaque sizes itself against its own box */
+  background: var(--ink-raise);
+  transition: background 0.4s, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* survey ticks — the resting state of an unclaimed spot.
+   Reads as a print registration mark, not as an empty box. */
+.spot__ticks {
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  opacity: 0.5;
+  transition: opacity 0.4s;
+}
+.spot__ticks span {
+  position: absolute;
+  width: 9px; height: 9px;
+  border: 1px solid var(--bone-mute);
+}
+.spot__ticks span:nth-child(1) { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.spot__ticks span:nth-child(2) { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.spot__ticks span:nth-child(3) { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.spot__ticks span:nth-child(4) { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+
+.spot__id {
+  position: absolute;
+  left: 14px; bottom: 11px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  color: var(--bone-mute);
+  transition: color 0.35s;
+  pointer-events: none;
+}
+
+.spot__fill {
+  position: absolute;
+  inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.6s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+  transform: scale(1.04);
+}
+
+/* the glow that sits under a free spot — subtle, alive */
+.spot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(120% 100% at 50% 120%, var(--acid-soft), transparent 62%);
+  opacity: 0.45;
+  transition: opacity 0.45s;
+  pointer-events: none;
+}
+
+.spot__edge {
+  position: absolute;
+  inset: 0;
+  border: 1px solid var(--ink-line);
+  transition: border-color 0.35s, box-shadow 0.45s;
+  pointer-events: none;
+}
+
+/* --- shapes ------------------------------------------------------------ */
+.spot[data-shape='square'],
+.spot[data-shape='rect'],
+.spot[data-shape='slab']   { border-radius: 3px; }
+.spot[data-shape='square'] .spot__edge,
+.spot[data-shape='rect']   .spot__edge,
+.spot[data-shape='slab']   .spot__edge { border-radius: 3px; }
+
+.spot[data-shape='circle'], .spot[data-shape='circle'] .spot__edge { border-radius: 50%; }
+/* a circle stays a circle whatever cell it lands in */
+.spot[data-shape='circle']:not(.inline-spot) {
+  aspect-ratio: 1;
+  width: auto;
+  height: 100%;
+  margin-inline: auto;
+  justify-self: center;
+  align-self: center;
+}
+.spot[data-shape='diamond'] { aspect-ratio: 1; width: auto; height: 100%; margin-inline: auto; }
+.spot[data-shape='arch'] { aspect-ratio: 3 / 4; width: auto; height: 100%; margin-inline: auto; }
+.spot[data-shape='pill'],   .spot[data-shape='pill']   .spot__edge { border-radius: 999px; }
+.spot[data-shape='arch'],   .spot[data-shape='arch']   .spot__edge {
+  border-radius: 50% 50% 4px 4px / 44% 44% 4px 4px;
+}
+.spot[data-shape='diamond'] { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+.spot[data-shape='diamond'] .spot__edge { display: none; }
+.spot[data-shape='diamond'] .spot__ticks { display: none; }
+
+/* --- owned ------------------------------------------------------------- */
+.spot.is-owned { background: #000; }
+.spot.is-owned .spot__fill { opacity: 1; transform: scale(1); }
+.spot.is-owned .spot__ticks { opacity: 0; }
+.spot.is-owned::before {
+  background: radial-gradient(120% 100% at 50% 120%, var(--ember-soft), transparent 62%);
+  opacity: 0;
+}
+.spot.is-owned .spot__id { color: transparent; }
+
+/* --- hover ------------------------------------------------------------- */
+.spot:hover { transform: translateY(-3px); }
+.spot:hover .spot__edge {
+  border-color: var(--acid);
+  box-shadow: 0 0 0 1px var(--acid), 0 0 34px -6px rgba(200, 255, 46, 0.55);
+}
+.spot:hover::before { opacity: 0.9; }
+.spot:hover .spot__id { color: var(--acid); }
+.spot:hover .spot__fill { transform: scale(1.06); }
+.spot.is-owned:hover .spot__edge {
+  border-color: var(--ember);
+  box-shadow: 0 0 0 1px var(--ember), 0 0 34px -6px rgba(255, 91, 35, 0.6);
+}
+.spot.is-owned:hover .spot__id { color: var(--ember); }
+
+/* --- tier weighting ---------------------------------------------------- */
+.spot[data-tier='MONUMENT'] .spot__edge { border-color: var(--ink-line-2); }
+.spot[data-tier='MONUMENT']::before { opacity: 0.7; }
+
+/* =========================================================================
+   REVEAL MODE — the button that lights up every claimable inch
+   ========================================================================= */
+
+body.reveal .spot__edge {
+  border-color: var(--acid);
+  box-shadow: 0 0 0 1px rgba(200, 255, 46, 0.35), inset 0 0 26px -12px var(--acid);
+}
+body.reveal .spot.is-owned .spot__edge {
+  border-color: var(--ember);
+  box-shadow: 0 0 0 1px rgba(255, 91, 35, 0.35), inset 0 0 26px -12px var(--ember);
+}
+body.reveal .spot__id { color: var(--acid); }
+body.reveal .spot.is-owned .spot__id { color: var(--ember); }
+body.reveal .spot__ticks { opacity: 1; }
+body.reveal .spot__tag { opacity: 1; translate: 0 0; }
+
+/* price tag that only exists in reveal mode */
+.spot__tag {
+  position: absolute;
+  top: 10px; right: 10px;
+  z-index: 3;
+  padding: 3px 7px;
+  border-radius: 3px;
+  background: var(--acid);
+  color: var(--ink);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  opacity: 0;
+  /* The entrance slide uses `translate`, which is its own property. Doing it
+     with `transform` meant every shape that repositions its tag had to
+     re-declare the slide as well, and whichever rule lost simply flung the
+     tag out of the box. */
+  translate: 0 -6px;
+  transition: opacity 0.35s, translate 0.35s;
+  pointer-events: none;
+}
+.spot.is-owned .spot__tag { background: var(--ember); color: #150500; }
+.spot[data-shape='diamond'] .spot__tag { top: 50%; right: 50%; transform: translate(50%, -50%); }
+
+/* the scan sweep fired when reveal flips on */
+.sweep {
+  position: fixed;
+  left: 0; right: 0;
+  top: 0;
+  height: 40vh;
+  z-index: 45;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(to bottom, transparent, rgba(200, 255, 46, 0.09) 60%, rgba(200,255,46,0.5));
+  border-bottom: 1px solid var(--acid);
+}
+
+/* --- floating "this can be yours" labels ------------------------------- */
+.plabel {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acid);
+  white-space: nowrap;
+  pointer-events: none;
+}
+.plabel::before {
+  content: '';
+  width: 26px; height: 1px;
+  background: currentColor;
+}
+
+/* =========================================================================
+   Vacant plaque — what a large unclaimed spot says for itself.
+   An empty page still has to look deliberate.
+   ========================================================================= */
+
+.spot__vacant {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.55rem;
+  text-align: center;
+  padding: 1rem;
+  pointer-events: none;
+  transition: opacity 0.4s, transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.spot.is-owned .spot__vacant { opacity: 0; transform: scale(0.96); }
+
+.spot__vacant b {
+  font-variation-settings: 'wdth' 118, 'wght' 750;
+  font-size: clamp(0.72rem, 9cqw, 1.6rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+  transition: color 0.35s;
+}
+.spot__vacant em {
+  font-style: normal;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+}
+.spot__vacant i {
+  display: block;
+  width: 22px; height: 1px;
+  background: var(--ink-line-2);
+  transition: background 0.35s, width 0.4s;
+}
+.spot:hover .spot__vacant b { color: var(--acid); }
+.spot:hover .spot__vacant i { background: var(--acid); width: 44px; }
+body.reveal .spot__vacant b { color: var(--acid); }
+
+/* a plaque has to know when it does not fit */
+@container (max-height: 150px) {
+  .spot__vacant { gap: 0.3rem; }
+  .spot__vacant em, .spot__vacant i { display: none; }
+}
+@container (max-height: 76px) {
+  .spot__vacant { display: none; }
+}
+@container (max-width: 130px) {
+  .spot__vacant em { display: none; }
+}
+
+/* =========================================================================
+   The O in the headline is a real deed.
+   ========================================================================= */
+
+.spot.inline-spot {
+  display: inline-block;
+  background: transparent;
+  vertical-align: baseline;
+}
+.spot.inline-spot::before { opacity: 0; }
+.spot.inline-spot .spot__ticks,
+.spot.inline-spot .spot__id,
+.spot.inline-spot .spot__vacant { display: none; }
+.spot.inline-spot .spot__edge {
+  border-width: 0.185em;   /* matches the stem weight of Archivo 800 */
+  border-color: var(--bone);
+  border-radius: 50%;
+}
+.spot.inline-spot:hover { transform: none; }
+.spot.inline-spot:hover .spot__edge {
+  border-color: var(--acid);
+  box-shadow: 0 0 0 1px var(--acid), 0 0 40px -6px rgba(200, 255, 46, 0.6);
+}
+.spot.inline-spot .spot__tag { top: -14px; right: 50%; transform: translateX(50%); }
+body.reveal .spot.inline-spot .spot__edge { border-color: var(--acid); }
+
+/* =========================================================================
+   Deeds + annotations. The running joke: almost everything has a price.
+   ========================================================================= */
+
+.deed {
+  position: relative;
+  display: block;
+  container-type: size;   /* so an inside-label can bail out when it will not fit */
+}
+.deed > .spot { width: 100%; height: 100%; }
+/* ...except where the shape has its own proportions to keep. These have to
+   out-rank the rule above, or a labelled circle comes out as an ellipse. */
+.deed > .spot[data-shape='circle'],
+.deed > .spot[data-shape='diamond'],
+.deed > .spot[data-shape='arch'] {
+  width: auto;
+  margin-inline: auto;
+}
+
+.plabel--top    { left: 0; top: -24px; }
+.plabel--bottom { left: 0; bottom: -24px; }
+.plabel--right  { left: calc(100% + 14px); top: 50%; transform: translateY(-50%); }
+.plabel--left   { right: calc(100% + 14px); top: 50%; transform: translateY(-50%); flex-direction: row-reverse; }
+.plabel--left::before { display: none; }
+.plabel--left::after { content: ''; width: 26px; height: 1px; background: currentColor; }
+
+/* resting state is quiet; reveal + hover make them shout */
+.deed > .plabel {
+  color: var(--bone-mute);
+  transition: color 0.35s, opacity 0.35s;
+}
+.deed:hover > .plabel { color: var(--acid); }
+body.reveal .deed > .plabel { color: var(--acid); }
+.deed:has(.spot.is-owned) > .plabel { opacity: 0.35; }
+body.reveal .deed:has(.spot.is-owned) > .plabel { color: var(--ember); opacity: 1; }
+
+/* the wordmark gag — the one thing that is not for sale */
+.nav__joke {
+  position: absolute;
+  left: 0; top: calc(100% + 6px);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bone-mute);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity 0.4s, transform 0.4s;
+  pointer-events: none;
+}
+.nav__joke::before { content: ''; width: 14px; height: 1px; background: currentColor; }
+body.reveal .nav__joke,
+.nav__markwrap:hover .nav__joke { opacity: 1; transform: translateY(0); }
+.nav__markwrap { position: relative; }
+
+/* =========================================================================
+   Owned media. Whatever someone drops in has to sit inside the design
+   rather than fight it: consistent crop, a grade, a scrim for the badge.
+   ========================================================================= */
+
+.spot__fill {
+  /* any jpeg, png, gif or mp4 lands in the same frame */
+  object-fit: cover;
+  object-position: center;
+  background: #000;
+  filter: saturate(0.92) contrast(1.05) brightness(0.96);
+  transition: opacity 0.6s, transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1), filter 0.5s;
+}
+.spot:hover .spot__fill { filter: saturate(1.06) contrast(1.02) brightness(1.02); }
+
+/* scrim so an id or badge stays legible over a bright upload */
+.spot.is-owned::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background:
+    linear-gradient(to top, rgba(4, 4, 6, 0.72), transparent 42%),
+    radial-gradient(130% 100% at 50% 50%, transparent 55%, rgba(4, 4, 6, 0.35));
+  opacity: 0.9;
+  transition: opacity 0.4s;
+}
+.spot.is-owned:hover::after { opacity: 0.55; }
+
+/* owner chip — who holds this inch */
+.spot__owner {
+  position: absolute;
+  left: 12px;
+  bottom: 11px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  color: var(--bone);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(5px);
+  transition: opacity 0.35s, transform 0.35s;
+  pointer-events: none;
+}
+.spot__owner::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--ember);
+}
+.spot.is-owned:hover .spot__owner,
+body.reveal .spot.is-owned .spot__owner { opacity: 1; transform: translateY(0); }
+
+/* a spot too small for a chip just glows */
+@container (max-height: 76px) {
+  .spot__owner { display: none; }
+}
+
+/* video deeds get a marker so the Monument reads as moving image */
+.spot__fill[data-media='video'] ~ .spot__owner::after {
+  content: 'video';
+  color: var(--bone-mute);
+}
+
+/* an annotation that lives inside its own frame, for dense grids where
+   there is no room to hang one outside */
+.plabel--inside {
+  left: 14px;
+  top: 11px;
+  z-index: 4;
+  font-size: 9px;
+  max-width: calc(100% - 60px);
+  white-space: normal;
+  line-height: 1.25;
+}
+.plabel--inside::before { display: none; }
+@container (max-height: 90px) {
+  .plabel--inside { display: none; }
+}
+/* a round or pointed shape has no square top-left to sit in */
+.spot[data-shape='circle'] .plabel--inside,
+.spot[data-shape='diamond'] .plabel--inside {
+  left: 50%;
+  top: auto;
+  bottom: 14px;
+  transform: translateX(-50%);
+  max-width: 70%;
+  text-align: center;
+}
+
+/* =========================================================================
+   CURSOR-01 — the pointer is a deed too
+   ========================================================================= */
+
+/* over a panel, difference blending stops reading; go solid instead */
+body.panel-open .reticle { mix-blend-mode: normal; }
+body.panel-open .reticle__ring { border-color: var(--acid); }
+body.panel-open .reticle__cross::before,
+body.panel-open .reticle__cross::after { background: var(--acid); }
+body.panel-open .reticle__label { color: var(--acid); }
+
+.reticle.is-deed-owned { mix-blend-mode: normal; }
+.reticle.is-deed-owned .reticle__ring {
+  width: 44px; height: 44px; margin: -22px 0 0 -22px;
+  background-size: cover;
+  background-position: center;
+  border-color: var(--ember);
+  box-shadow: 0 0 0 1px rgba(255, 91, 35, 0.5), 0 0 22px -6px rgba(255, 91, 35, 0.7);
+}
+.reticle.is-deed-owned .reticle__cross::before,
+.reticle.is-deed-owned .reticle__cross::after { opacity: 0; }
+body.is-hot .reticle.is-deed-owned .reticle__ring { width: 64px; height: 64px; margin: -32px 0 0 -32px; }
+
+/* the hint that gives the easter egg away, but only in reveal mode */
+.reticle__egg {
+  position: absolute;
+  left: 22px; top: -20px;
+  white-space: nowrap;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acid);
+  opacity: 0;
+  transition: opacity 0.35s;
+}
+body.reveal .reticle__egg { opacity: 1; }
+
+/* =========================================================================
+   Pictures inside letterforms.
+   A deed set in type is 15px to 200px across. At that size the standard
+   treatment (thick ring, scrim, vignette) eats the picture, so owned inline
+   deeds get their own: thin bright ring, no scrim, and a contrast lift so
+   the image still reads as a mark rather than a smudge.
+   ========================================================================= */
+
+.spot.inline-spot.is-owned {
+  background: #000;
+}
+
+/* the scrim and vignette are for large frames only */
+.spot.inline-spot.is-owned::after { display: none; }
+.spot.inline-spot .spot__owner { display: none; }
+
+/* thin the ring right down so the picture gets the area, but keep it
+   visible enough that the letter still reads as a letter */
+.spot.inline-spot.is-owned .spot__edge {
+  border-width: 0.055em;
+  border-color: var(--ember);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 14px -4px rgba(255, 91, 35, 0.55);
+}
+.spot.inline-spot.is-owned:hover .spot__edge {
+  border-color: var(--acid);
+  box-shadow:
+    inset 0 0 0 1px rgba(0, 0, 0, 0.55),
+    0 0 22px -4px rgba(200, 255, 46, 0.7);
+}
+
+/* small renders lose their punch; give them some back */
+.spot.inline-spot .spot__fill {
+  filter: saturate(1.25) contrast(1.16) brightness(1.04);
+  transform: scale(1);
+}
+.spot.inline-spot:hover .spot__fill {
+  filter: saturate(1.35) contrast(1.2) brightness(1.08);
+  transform: scale(1.05);
+}
+
+/* the really tiny ones — a full stop, the zero in a section number — are
+   closer to a swatch than a picture, so push them further still */
+@container (max-width: 34px) {
+  .spot__fill { filter: saturate(1.7) contrast(1.35) brightness(1.1); }
+}
+
+/* the giant footer O is the opposite case: it is big enough to behave
+   like a normal frame again */
+.spot.foot__o.is-owned .spot__edge {
+  border-width: 0.02em;
+  border-color: rgba(255, 91, 35, 0.75);
+}
+.spot.foot__o .spot__fill { filter: saturate(1.02) contrast(1.04); }
+
+/* --- a deed that links somewhere --------------------------------------- */
+
+/* the link affordance used to live here. Spots cannot carry a url any more,
+   so the class can never be set and the styling went with it. */
+
+
+/* =========================================================================
+   Text inside a shape that is not a rectangle.
+   A corner label works on a slab. On a circle the corner is outside the
+   shape, and on a diamond the bottom is a single point — both slice the
+   text in half. Put it where the silhouette is actually wide.
+   ========================================================================= */
+
+/* circle and pill: centred along the bottom, pulled in off the curve */
+.spot[data-shape='circle'] .spot__id,
+.spot[data-shape='pill'] .spot__id,
+.spot[data-shape='arch'] .spot__id {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: 12%;
+}
+.spot[data-shape='pill'] .spot__id { bottom: 18%; }
+
+/* diamond: widest across its middle, so nothing sits near the points */
+.spot[data-shape='diamond'] .spot__id {
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: auto;
+  top: 62%;
+}
+.spot[data-shape='diamond'] .plabel--inside {
+  top: 70%;
+  bottom: auto;
+  max-width: 46%;
+}
+.spot[data-shape='circle'] .plabel--inside { bottom: 20%; max-width: 60%; }
+.spot[data-shape='pill'] .plabel--inside { bottom: 26%; }
+.spot[data-shape='arch'] .plabel--inside { bottom: 20%; left: 50%; transform: translateX(-50%); text-align: center; }
+
+/* the price chip has the same problem in a rounded corner */
+.spot[data-shape='circle'] .spot__tag,
+.spot[data-shape='pill'] .spot__tag {
+  top: 14%;
+  right: 50%;
+  transform: translateX(50%);
+}
+
+/* =========================================================================
+   Round shapes stacked in a grid.
+   A circle fills its cell edge to edge, so the only separation from the
+   shape above is the grid gap — and against a curved edge that reads as
+   crowded even when the measurement says it is fine. Give the round ones a
+   little of their own cell back.
+   ========================================================================= */
+#wall-grid .spot[data-shape='circle'],
+#wall-grid .spot[data-shape='diamond'],
+#strip-grid .spot[data-shape='circle'] {
+  height: calc(100% - 26px);
+}
+
+/* A round shape sitting under a square-cornered one needs that freed space
+   above it, not split evenly around it — centring gives back half and it
+   still looks stuck to the shape above. The grid gutter alone measures fine
+   and reads badly, because a curve and a straight edge do not sit together
+   the way two straight edges do. */
+#wall-grid .spot[data-shape='circle'] {
+  align-self: end;
+  height: calc(100% - 44px);
+}
+#wall-grid .spot[data-shape='pill'] {
+  align-self: end;
+  height: calc(100% - 34px);
+}
+
+
+/* =========================================================================
+   Price tags on very small deeds.
+   A Pin can be 52px across while its price reads "250K". Pinned to the
+   top-right corner that tag is wider than the spot it belongs to, so
+   overflow:hidden simply ate it and the price could not be read at all.
+   Below this size it sits in the middle and shrinks to fit.
+   ========================================================================= */
+@container (max-width: 96px) {
+  .spot__tag {
+    top: 50%;
+    left: 50%;
+    right: auto;
+    transform: translate(-50%, -50%);
+    font-size: 8px;
+    padding: 2px 4px;
+    letter-spacing: 0.02em;
+    max-width: calc(100% - 6px);
+    text-align: center;
+  }
+  /* the id would sit underneath it at that size */
+  .spot__id { opacity: 0; }
+}
+
+/* --- the default face of an unsold deed ---------------------------------
+   Every vacant spot shows the project mark rather than an empty box, so the
+   page is the project's own mark until somebody buys it. The PFP is an acid
+   ring on near-black, so its background blends into the page and the O is what
+   reads; a centred label lands in the hollow middle. It sits UNDER the vacant
+   label and vanishes the moment a real picture arrives. */
+.spot:not(.is-owned)::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background-image: url('/spot-default.webp');
+  /* contain, not cover: the deeds run from a 23px full stop to a 1328x166
+     banner, and cover crops the mark so a wide or large spot showed one
+     magnified arc of the ring instead of the logo. contain keeps the whole
+     mark visible and correctly proportioned at every shape. */
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  opacity: 0.6;
+  transition: opacity 0.45s, filter 0.45s;
+  pointer-events: none;
+  border-radius: inherit;
+}
+/* hovering one is the invitation: the mark warms up and comes forward */
+.spot:not(.is-owned):hover::after { opacity: 0.95; }
+/* reveal mode is already shouting; let the mark step back so the price reads */
+body.reveal .spot:not(.is-owned)::after { opacity: 0.4; }
+/* the tiny typographic deeds have no room for a picture behind the label */
+.spot.inline-spot:not(.is-owned)::after { opacity: 0.85; }

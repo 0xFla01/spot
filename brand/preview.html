@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SPOT — brand assets</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #0C0C10;
+        color: #EDEAE1;
+        font-family: 'Archivo', system-ui, sans-serif;
+        padding: 48px clamp(20px, 4vw, 64px) 96px;
+      }
+      h2 {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.24em;
+        text-transform: uppercase;
+        color: #C8FF2E;
+        margin: 56px 0 6px;
+      }
+      h2:first-of-type { margin-top: 0; }
+      p.note {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 11px;
+        letter-spacing: 0.08em;
+        color: rgba(237, 234, 225, 0.42);
+        margin-bottom: 18px;
+      }
+      img { display: block; border-radius: 4px; }
+      .frame { border: 1px solid rgba(237, 234, 225, 0.12); border-radius: 6px; overflow: hidden; width: fit-content; }
+      .banner img { width: min(100%, 1100px); height: auto; }
+      .og img { width: min(100%, 720px); height: auto; }
+
+      .sizes { display: flex; align-items: flex-end; gap: 34px; flex-wrap: wrap; }
+      .size { text-align: center; }
+      .size img { border-radius: 50%; margin-bottom: 10px; }
+      .size span {
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 10px;
+        letter-spacing: 0.14em;
+        color: rgba(237, 234, 225, 0.4);
+      }
+
+      /* what it looks like sat on an actual X profile */
+      .mock {
+        position: relative;
+        width: min(100%, 760px);
+        border: 1px solid rgba(237, 234, 225, 0.12);
+        border-radius: 8px;
+        overflow: hidden;
+        background: #000;
+      }
+      .mock img.banner { width: 100%; display: block; }
+      .mock .avatar {
+        position: absolute;
+        left: 22px;
+        bottom: 34px;
+        width: 108px;
+        height: 108px;
+        border-radius: 50%;
+        border: 4px solid #000;
+        overflow: hidden;
+      }
+      .mock .avatar img { width: 100%; height: 100%; }
+      .mock .bio { padding: 62px 22px 20px; }
+      .mock .bio b { display: block; font-size: 19px; font-variation-settings: 'wght' 700; }
+      .mock .bio span { font-size: 14px; color: rgba(237, 234, 225, 0.45); }
+    </style>
+  </head>
+  <body>
+    <h2>Profile picture</h2>
+    <p class="note">at the sizes X actually renders it</p>
+    <div class="sizes">
+      <div class="size"><img src="spot-pfp.png" width="160" height="160" alt="" /><span>160px</span></div>
+      <div class="size"><img src="spot-pfp.png" width="80" height="80" alt="" /><span>80px</span></div>
+      <div class="size"><img src="spot-pfp.png" width="48" height="48" alt="" /><span>48px timeline</span></div>
+      <div class="size"><img src="spot-pfp.png" width="32" height="32" alt="" /><span>32px reply</span></div>
+      <div class="size"><img src="spot-pfp.png" width="24" height="24" alt="" /><span>24px</span></div>
+    </div>
+
+    <h2>On a profile</h2>
+    <p class="note">the avatar sits over the banner's bottom-left — nothing important is under it</p>
+    <div class="mock">
+      <img class="banner" src="spot-banner.png" alt="" />
+      <div class="avatar"><img src="spot-pfp.png" alt="" /></div>
+      <div class="bio">
+        <b>SPOT</b>
+        <span>@spot · Every inch is for sale</span>
+      </div>
+    </div>
+
+    <h2>Banner</h2>
+    <p class="note">spot-banner.png — 1500 × 500</p>
+    <div class="frame banner"><img src="spot-banner.png" alt="" /></div>
+
+    <h2>Link preview</h2>
+    <p class="note">spot-og.png — 1200 × 630, shown when the link is posted</p>
+    <div class="frame og"><img src="spot-og.png" alt="" /></div>
+  </body>
+</html>

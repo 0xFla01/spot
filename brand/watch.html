@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SPOT — launch film</title>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        background: #07070A; color: #EDEAE1;
+        font-family: 'Archivo', system-ui, sans-serif;
+        display: grid; place-items: center; min-height: 100vh; padding: 40px;
+      }
+      .wrap { width: min(100%, 1180px); }
+      h1 {
+        font-variation-settings: 'wdth' 118, 'wght' 800;
+        font-size: clamp(1.6rem, 3vw, 2.4rem); text-transform: uppercase;
+        letter-spacing: -0.03em; margin-bottom: 4px;
+      }
+      p.sub {
+        font-family: 'JetBrains Mono', monospace; font-size: 11px;
+        letter-spacing: 0.2em; text-transform: uppercase; color: #C8FF2E;
+        margin-bottom: 22px;
+      }
+      video { width: 100%; display: block; border-radius: 8px; background: #000; border: 1px solid rgba(237,234,225,0.12); }
+      .beats {
+        margin-top: 24px; display: grid; gap: 8px;
+        font-family: 'JetBrains Mono', monospace; font-size: 12px;
+        color: rgba(237,234,225,0.5);
+      }
+      .beats b { color: #C8FF2E; font-weight: 500; }
+      .beats span { color: rgba(237,234,225,0.75); }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h1>SPOT — launch film</h1>
+      <p class="sub">37s &middot; 1920&times;1080 &middot; narrated &mdash; turn the sound on</p>
+      <video src="spot-film.webm" controls autoplay loop playsinline></video>
+      <div class="beats">
+        <div><b>01.6</b> <span>"This is SPOT." &mdash; the mark builds</span></div>
+        <div><b>02.8</b> <span>"Almost every inch of this page is for sale."</span></div>
+        <div><b>05.4</b> <span>"The letters. The corners. The full stop at the end of a sentence." &mdash; a price pops onto S, then O, then T, one per phrase</span></div>
+        <div><b>09.6</b> <span>"You buy a spot, and you put whatever you want in it." &mdash; the O fills</span></div>
+        <div><b>12.5</b> <span>"But here's the thing."</span></div>
+        <div><b>14.3</b> <span>"Anyone can take it off you..." &mdash; a cursor slides in mid&#8209;sentence</span></div>
+        <div><b>17.6</b> <span>it gets taken while he is still explaining the rule</span></div>
+        <div><b>18.3</b> <span>"And you can't stop them."</span></div>
+        <div><b>20.0</b> <span>"But you don't lose. Ninety&#8209;five percent of that? Goes straight to you."</span></div>
+        <div><b>21.4</b> <span>&ldquo;95% TO YOU&rdquo; appears on the words &mdash; it used to arrive 1.7s early</span></div>
+        <div><b>24.7</b> <span>"The rest of it just burns. It's gone. For good." &mdash; &ldquo;5% BURNED&rdquo; appears on the same breath, 2.8s later than before</span></div>
+        <div><b>25.9</b> <span>the embers catch on the word &ldquo;burns&rdquo; &mdash; they used to go out on it</span></div>
+        <div><b>27.6</b> <span>"And the price only goes one way." &mdash; the ladder climbs</span></div>
+        <div><b>30.7</b> <span>"Even this O is for sale."</span></div>
+        <div><b>33.0</b> <span>"And even the cursor. Yeah, that one's for sale too."</span></div>
+      </div>
+      </div>
+      </div>
+    </div>
+  </body>
+</html>

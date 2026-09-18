@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SPOT — banner</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 1500x500, the size X expects.
+         Two things shape the composition: the avatar sits over the bottom-left
+         corner, and phones crop the sides. So nothing that matters goes in the
+         bottom-left, and the wordmark stays near the middle. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1500px; height: 500px; overflow: hidden; }
+
+      .banner {
+        position: relative;
+        width: 1500px;
+        height: 500px;
+        background:
+          radial-gradient(70% 120% at 78% 110%, rgba(200, 255, 46, 0.14), transparent 60%),
+          radial-gradient(60% 100% at 12% -10%, rgba(255, 91, 35, 0.08), transparent 62%),
+          #07070A;
+        font-family: 'Archivo', system-ui, sans-serif;
+        color: #EDEAE1;
+        display: grid;
+        place-items: center;
+      }
+
+      /* survey grid, very faint, the property lines motif */
+      .lines {
+        position: absolute;
+        inset: 0;
+        opacity: 0.5;
+        background-image:
+          linear-gradient(rgba(237, 234, 225, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(237, 234, 225, 0.05) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(70% 70% at 50% 50%, #000 30%, transparent 100%);
+      }
+
+      .stack { position: relative; text-align: center; margin-top: -18px; }
+
+      .word {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 0.01em;
+        font-variation-settings: 'wdth' 122, 'wght' 800;
+        font-size: 176px;
+        line-height: 0.82;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+      }
+      /* The O is the mark, exactly as it is on the site. It needs its own
+         spacing: the word's negative tracking pulls the P hard against it, and
+         the ring's glow makes the gap read tighter still. More room on the left
+         than the right, because the P's flat stem crowds it where the T does
+         not. */
+      .word i {
+        display: block;
+        width: 0.72em;
+        height: 0.72em;
+        margin-left: 0.085em;
+        margin-right: 0.05em;
+        margin-bottom: -0.015em;
+        border-radius: 50%;
+        border: 0.155em solid #C8FF2E;
+        box-shadow: 0 0 60px -8px rgba(200, 255, 46, 0.5);
+        flex: none;
+      }
+
+      .tag {
+        margin-top: 26px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 19px;
+        letter-spacing: 0.42em;
+        text-transform: uppercase;
+        color: rgba(237, 234, 225, 0.62);
+      }
+
+      /* corner registration marks, well inside the mobile crop */
+      .tick {
+        position: absolute;
+        width: 34px;
+        height: 34px;
+        border: 2px solid rgba(237, 234, 225, 0.22);
+      }
+      .tick.tl { top: 40px; left: 300px; border-right: 0; border-bottom: 0; }
+      .tick.tr { top: 40px; right: 300px; border-left: 0; border-bottom: 0; }
+      .tick.br { bottom: 40px; right: 300px; border-left: 0; border-top: 0; }
+      /* the fourth corner. It sits at 300px, well clear of the profile photo
+         that X drops over the bottom-left of the banner. */
+      .tick.bl { bottom: 40px; left: 300px; border-right: 0; border-top: 0; }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.045;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+    </style>
+  </head>
+  <body>
+    <div class="banner">
+      <div class="lines"></div>
+      <i class="tick tl"></i>
+      <i class="tick tr"></i>
+      <i class="tick br"></i>
+      <i class="tick bl"></i>
+
+      <div class="stack">
+        <div class="word">SP<i></i>T</div>
+        <div class="tag">Every inch is for sale</div>
+      </div>
+
+      <div class="grain"></div>
+    </div>
+  </body>
+</html>

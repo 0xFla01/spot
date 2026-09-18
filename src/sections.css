@@ -1,0 +1,932 @@
+/* =========================================================================
+   SPOT — sections
+   ========================================================================= */
+
+/* --- HERO -------------------------------------------------------------- */
+.hero {
+  min-height: 100svh;
+  padding: 0 var(--gutter);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+}
+
+.hero__inner { width: 100%; position: relative; }
+
+.hero__kicker {
+  display: flex;
+  gap: 1.5rem;
+  color: var(--bone-mute);
+  margin-bottom: 2.2rem;
+}
+.hero__kicker span:first-child { color: var(--acid); }
+
+.hero__title { position: relative; z-index: 2; }
+.hero__line { display: block; overflow: hidden; }
+.hero__line > span { display: block; will-change: transform; }
+
+/* The headline is a full-width block sitting above the Monument, so its empty
+   right-hand side was swallowing every click meant for that spot. Stop the
+   box before the Monument starts. */
+@media (min-width: 901px) {
+  .hero__title {
+    max-width: calc(100% - 4vw - min(26vw, 360px) - 2rem);
+  }
+}
+
+/* the O in FOR is a real, buyable spot */
+.hero__slotline {
+  display: flex;
+  width: fit-content;
+  align-items: baseline;   /* the circle sits on the baseline like a real glyph */
+  gap: 0.045em;
+  line-height: 1;
+}
+.hero__inlinespot {
+  width: 0.715em;          /* cap height 0.688em + optical overshoot */
+  height: 0.715em;
+  margin-bottom: -0.02em;
+  flex: none;
+}
+
+.hero__foot {
+  margin-top: 2.4rem;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 3rem;
+  flex-wrap: wrap;
+}
+
+.hero__stats { display: flex; gap: 2.6rem; align-items: flex-end; }
+
+/* The number sits over a label that is usually wider than it — a lone "0"
+   against the word CLAIMED. Centre the digits on the word, and keep the
+   figures monospaced so the row does not shuffle as the counts change. */
+.hero__stat { text-align: center; }
+.hero__stat--spot { display: flex; flex-direction: column; gap: 0.55rem; }
+.hero__stat--spot span { color: var(--acid); }
+.hero__stat b {
+  display: block;
+  font-variation-settings: 'wdth' 115, 'wght' 700;
+  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  margin-bottom: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+.hero__stat span { color: var(--bone-mute); }
+
+.hero__scroll {
+  position: absolute;
+  left: 0; bottom: -3.2rem;
+  color: var(--bone-mute);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+.hero__scroll i {
+  display: block;
+  width: 1px; height: 34px;
+  background: linear-gradient(var(--acid), transparent);
+}
+
+/* monument sits in the hero, absolutely placed */
+.hero .spot[data-tier='MONUMENT'] { position: absolute; z-index: 1; }
+@media (max-width: 900px) {
+  .hero .spot[data-tier='MONUMENT'] {
+    position: relative; right: auto; top: auto;
+    width: 100% !important; height: 46vh !important;
+    margin-top: 2.5rem;
+  }
+}
+
+/* --- PROOF ------------------------------------------------------------- */
+.proof { padding: var(--section-y) var(--gutter); }
+.proof__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: center;
+}
+.proof__copy { grid-column: 1 / span 5; }
+.proof__copy .h2 { margin-bottom: 1.4rem; }
+.proof__a { grid-column: 7 / span 6; height: 44vh; }
+.proof__b { grid-column: 7 / span 3; height: 26vh; }
+.proof__c { grid-column: 10 / span 3; height: 26vh; }
+.proof__d { grid-column: 1 / span 3; height: 9vh; margin-top: 2rem; }
+@media (max-width: 900px) {
+  .proof__copy, .proof__a, .proof__b, .proof__c, .proof__d { grid-column: 1 / -1; }
+  .proof__a { height: 40vh; }
+  .proof__b, .proof__c { height: 22vh; }
+}
+
+.proof__item { position: relative; }
+
+/* --- HOW --------------------------------------------------------------- */
+.how { padding: var(--section-y) var(--gutter); }
+.how__steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1.5rem, 3vw, 3.5rem);
+}
+@media (max-width: 900px) { .how__steps { grid-template-columns: 1fr; } }
+
+.step { border-top: var(--rule) solid var(--ink-line-2); padding-top: 1.4rem; }
+.step__n { color: var(--acid); margin-bottom: 1.2rem; display: block; }
+.step__spot { width: 100%; aspect-ratio: 1 / 1; margin-bottom: 1.6rem; }
+
+/* The three steps are read as a set, so their shapes have to occupy the same
+   footprint. An arch keeps a 3:4 proportion elsewhere, which here left the
+   third column looking indented against the other two — an arch only needs a
+   rounded top, not a fixed ratio, so let it fill the column like the rest. */
+.step__spot .spot[data-shape='arch'],
+.step__spot.spot[data-shape='arch'] {
+  width: 100%;
+  aspect-ratio: auto;
+  margin-inline: 0;
+}
+.step__t {
+  font-variation-settings: 'wdth' 112, 'wght' 700;
+  font-size: clamp(1.4rem, 2.3vw, 2.1rem);
+  line-height: 1;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  margin-bottom: 0.9rem;
+}
+.step__p { color: var(--bone-dim); max-width: 32ch; }
+.step__p b { color: var(--bone); font-weight: 600; }
+
+.how__math {
+  margin-top: 5rem;
+  padding: 2rem;
+  border: var(--rule) solid var(--ink-line);
+  border-radius: 6px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 1.5rem;
+  background: rgba(14, 14, 19, 0.5);
+  backdrop-filter: blur(8px);
+}
+.math__cell b {
+  display: block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+  font-weight: 500;
+  color: var(--acid);
+  margin-bottom: 0.4rem;
+}
+.math__cell span { color: var(--bone-mute); }
+
+/* --- WALL -------------------------------------------------------------- */
+.wall { padding: var(--section-y) var(--gutter); }
+.wall__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  grid-auto-rows: clamp(48px, 6.2vw, 96px);
+  gap: clamp(6px, 0.7vw, 12px);
+  grid-auto-flow: row dense;   /* let small deeds backfill the holes */
+}
+@media (max-width: 900px) {
+  .wall__grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 52px; }
+}
+
+/* --- FEED -------------------------------------------------------------- */
+.feed { padding: var(--section-y) var(--gutter); }
+.feed__panel {
+  border: var(--rule) solid var(--ink-line);
+  border-radius: 6px;
+  overflow: hidden;
+  background: rgba(10, 10, 14, 0.6);
+  backdrop-filter: blur(10px);
+}
+.feed__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 1.2rem;
+  border-bottom: var(--rule) solid var(--ink-line);
+  color: var(--bone-mute);
+}
+.feed__live {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--acid);
+  animation: pulse 1.6s ease-in-out infinite;
+}
+.feed__list { max-height: 46vh; overflow: hidden; }
+.feed__row {
+  display: grid;
+  grid-template-columns: 90px 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.85rem 1.2rem;
+  border-bottom: var(--rule) solid rgba(237, 234, 225, 0.05);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(0.65rem, 0.85vw, 0.8rem);
+}
+.feed__row:last-child { border-bottom: 0; }
+.feed__time { color: var(--bone-mute); }
+.feed__what { color: var(--bone-dim); }
+.feed__what b { color: var(--bone); font-weight: 500; }
+.feed__what .tag { color: var(--acid); }
+.feed__amt { color: var(--acid); text-align: right; white-space: nowrap; }
+.feed__row[data-kind='flip'] .feed__amt { color: var(--ember); }
+.feed__row[data-kind='burn'] .feed__amt { color: var(--bone-mute); }
+
+/* --- FOOTER ------------------------------------------------------------ */
+.foot { padding: var(--section-y) var(--gutter) 3vh; border-top: var(--rule) solid var(--ink-line); }
+.foot__top { display: flex; justify-content: space-between; gap: 2rem; flex-wrap: wrap; align-items: flex-end; }
+.foot__spots { display: flex; gap: 0.6rem; }
+.foot__spots .spot { width: 46px; height: 46px; }
+.foot__big {
+  font-variation-settings: 'wdth' 125, 'wght' 800;
+  font-size: clamp(4rem, 19vw, 20rem);
+  line-height: 0.78;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+  margin-top: 6vh;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--ink-line-2);
+}
+.foot__legal {
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  color: var(--bone-mute);
+  margin-top: 3vh;
+  padding-top: 1.2rem;
+  border-top: var(--rule) solid var(--ink-line);
+}
+
+/* --- CLAIM MODAL ------------------------------------------------------- */
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+.modal.is-open { visibility: visible; opacity: 1; }
+.modal__scrim { position: absolute; inset: 0; background: rgba(4, 4, 6, 0.82); backdrop-filter: blur(14px); }
+.modal__card {
+  position: relative;
+  width: min(560px, 100%);
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 8px;
+  background: var(--ink-raise);
+  padding: 2rem;
+  transform: translateY(18px) scale(0.98);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.modal.is-open .modal__card { transform: none; }
+.modal__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.6rem; }
+.modal__id {
+  font-variation-settings: 'wdth' 115, 'wght' 750;
+  font-size: 2rem; line-height: 1; letter-spacing: -0.02em;
+}
+.modal__tier { color: var(--acid); margin-top: 0.5rem; display: block; }
+.modal__x { color: var(--bone-mute); font-size: 1.4rem; line-height: 1; }
+.modal__x:hover { color: var(--bone); }
+
+.modal__price {
+  display: flex; align-items: baseline; gap: 0.6rem;
+  padding: 1.2rem 0;
+  border-block: var(--rule) solid var(--ink-line);
+  margin-bottom: 1.2rem;
+}
+.modal__price b {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: clamp(1.8rem, 4vw, 2.6rem);
+  font-weight: 500;
+  color: var(--acid);
+  letter-spacing: -0.02em;
+}
+.modal__price span { color: var(--bone-mute); }
+
+.modal__rows { display: grid; gap: 0.7rem; margin-bottom: 1.6rem; }
+.modal__row { display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+.modal__row span { color: var(--bone-mute); }
+.modal__row b { font-weight: 500; }
+.modal__row[data-hot='burn'] b { color: var(--ember); }
+
+.modal__note {
+  font-size: 0.82rem;
+  color: var(--bone-mute);
+  line-height: 1.5;
+  margin-bottom: 1.6rem;
+  padding: 0.9rem 1rem;
+  border-left: 2px solid var(--acid);
+  background: rgba(200, 255, 46, 0.04);
+}
+.modal__actions { display: flex; gap: 0.6rem; }
+.modal__actions .btn { flex: 1; justify-content: center; }
+
+/* --- ghost links in the nav -------------------------------------------- */
+.btn--ghost { border-color: var(--ink-line); color: var(--bone-dim); }
+.btn--ghost:hover { color: var(--ink); }
+@media (max-width: 1100px) { .btn--ghost { display: none; } }
+
+/* --- proof extras ------------------------------------------------------- */
+.proof__pin { margin-top: 2.4rem; width: 160px; height: 46px; }
+.proof__item .spot,
+.proof__pin .spot { width: 100%; height: 100%; }
+.proof__item .deed,
+.proof__pin .deed { width: 100%; height: 100%; }
+
+/* --- STRIP -------------------------------------------------------------- */
+.strip {
+  padding: var(--section-y) var(--gutter);
+  border-block: var(--rule) solid var(--ink-line);
+  background: rgba(10, 10, 14, 0.35);
+}
+.strip__head {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  color: var(--bone-mute);
+  margin-bottom: 2.2rem;
+}
+.strip__hint { color: var(--acid); }
+.strip__grid {
+  display: grid;
+  grid-template-columns: repeat(14, 1fr);
+  grid-auto-rows: clamp(56px, 6vw, 88px);
+  gap: clamp(8px, 0.9vw, 16px);
+}
+@media (max-width: 900px) {
+  .strip__grid { grid-template-columns: repeat(6, 1fr); grid-auto-rows: 56px; }
+}
+
+/* --- HOW extras --------------------------------------------------------- */
+.how__mathrow {
+  margin-top: 5rem;
+  display: flex;
+  align-items: stretch;
+  gap: clamp(1rem, 2vw, 2.5rem);
+}
+.how__mathrow .how__math { margin-top: 0; flex: 1; }
+.how__mathspots {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-right: 3.5rem;
+}
+@media (max-width: 900px) {
+  .how__mathrow { flex-direction: column; }
+  .how__mathspots { flex-direction: row; padding-right: 0; }
+}
+
+/* --- EDITORIAL ---------------------------------------------------------- */
+.edit { padding: var(--section-y) var(--gutter); }
+.edit__grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: clamp(1.5rem, 3vw, 3rem);
+  align-items: start;
+}
+.edit__side { grid-column: 1 / span 3; }
+.edit__plot { width: 100%; aspect-ratio: 3 / 4; }
+.edit__body { grid-column: 5 / span 8; }
+@media (max-width: 900px) {
+  .edit__side, .edit__body { grid-column: 1 / -1; }
+  .edit__plot { aspect-ratio: 16 / 9; }
+}
+
+.edit__text {
+  font-variation-settings: 'wdth' 100, 'wght' 500;
+  font-size: clamp(1.35rem, 2.6vw, 2.5rem);
+  line-height: 1.22;
+  letter-spacing: -0.02em;
+  text-wrap: pretty;
+}
+.edit__inline {
+  width: 0.62em;
+  height: 0.62em;
+  margin: 0 0.12em -0.02em;
+}
+.edit__inline .spot__edge { border-width: 0.09em; }
+
+.edit__foot {
+  margin-top: 3.5rem;
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+.edit__diamond { width: clamp(80px, 9vw, 130px); aspect-ratio: 1; flex: none; }
+.edit__note { color: var(--bone-mute); max-width: 40ch; }
+
+/* --- FEED layout -------------------------------------------------------- */
+.feed__layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(220px, 24vw, 320px);
+  gap: clamp(1rem, 2vw, 2rem);
+  align-items: start;
+}
+@media (max-width: 900px) { .feed__layout { grid-template-columns: 1fr; } }
+
+.feed__rail { display: grid; gap: clamp(0.8rem, 1.4vw, 1.4rem); }
+.feed__banner { width: 100%; aspect-ratio: 16 / 10; }
+.feed__pins { display: grid; grid-template-columns: 1fr 1fr; gap: inherit; }
+.feed__pill { width: 100%; height: 54px; }
+
+/* --- FOOTER extras ------------------------------------------------------ */
+/* the burned counter doubles as a link to the proof on Solscan */
+.hero__stat--verify { cursor: pointer; }
+.hero__stat--verify b { border-bottom: 1px dashed var(--ink-line); transition: color 0.18s ease, border-color 0.18s ease; }
+.hero__stat--verify:hover b,
+.hero__stat--verify:focus-visible b { color: var(--ember); border-bottom-color: var(--ember); }
+
+/* The contract address. `.mono` uppercases everything, which would be a real
+   bug here: base58 is case sensitive, so an uppercased address is a DIFFERENT
+   address and anyone reading it off the screen would send to nowhere. Keep the
+   exact casing, and tighten the tracking so 44 characters still fit. */
+#mint-line { text-transform: none; letter-spacing: 0.04em; }
+
+.mint-line--copy {
+  cursor: pointer;
+  display: inline-block;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  border-bottom: 1px dashed var(--ink-line);
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.mint-line--copy:hover,
+.mint-line--copy:focus-visible { color: var(--acid); border-bottom-color: var(--acid); }
+.mint-line--copy[data-copied] { color: var(--acid); border-bottom-color: transparent; }
+
+.foot__links { display: flex; gap: 1.2rem; margin-top: 1.2rem; }
+.foot__links a { color: var(--acid); }
+.foot__links a:hover { color: var(--bone); }
+.foot__banner { width: clamp(200px, 26vw, 360px); height: 84px; }
+
+/* --- icon links (X, pump.fun) ------------------------------------------- */
+.iconbtn {
+  position: relative;
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 50%;
+  color: var(--bone-dim);
+  overflow: hidden;
+  transition: color 0.35s, border-color 0.35s;
+}
+.iconbtn svg { width: 15px; height: 15px; position: relative; z-index: 1; }
+.iconbtn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--bone);
+  transform: translateY(101%);
+  transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.iconbtn:hover { color: var(--ink); border-color: var(--bone); }
+.iconbtn:hover::after { transform: translateY(0); }
+.iconbtn--pump svg { width: 17px; height: 17px; }
+.iconbtn--pump:hover svg g path:last-child { fill: #0A0A0B; }
+
+/* --- typographic deeds -------------------------------------------------- */
+.h2__line { display: block; }
+.h2__slot { display: flex; align-items: baseline; gap: 0.02em; }
+.h2__dot {
+  /* The buyable full stop. It has to read as punctuation AND hold a picture,
+     which pull opposite ways: at 0.19em with a 0.05em ring the border ate half
+     of each axis and left about a fifth of the area for the image. */
+  width: 0.26em;
+  height: 0.26em;
+  margin-left: 0.04em;
+  flex: none;
+}
+/* Specificity has to clear .spot.inline-spot.is-owned (0,3,1), which sets a
+   0.055em ring for inline deeds generally - far too heavy at this size. */
+/* vacant, the ring IS the affordance, so it stays visible */
+.spot.inline-spot.h2__dot .spot__edge { border-width: 0.05em; border-radius: 2px; }
+/* owned, the picture is the point - the ring steps back to a hairline */
+.spot.inline-spot.h2__dot.is-owned .spot__edge { border-width: 0.014em; }
+
+.shead__slot { display: inline-flex; align-items: baseline; gap: 0.1em; }
+.shead__zero {
+  width: 0.78em;
+  height: 0.78em;
+  margin-right: 0.04em;
+  flex: none;
+}
+.shead__zero .spot__edge { border-width: 2px; }
+
+.foot__slot { display: flex; align-items: baseline; gap: 0.01em; }
+.foot__o {
+  width: 0.72em;
+  height: 0.72em;
+  margin-bottom: -0.02em;
+  flex: none;
+}
+/* The hero's O needs a heavy ring to read at headline weight. The footer's is
+   ten times bigger and sits among hairline outlined letters, so it needs the
+   opposite — and it has to out-specify .spot.inline-spot to get it. */
+.spot.foot__o .spot__edge {
+  border-width: 3px;
+  border-color: var(--ink-line-2);
+}
+.spot.foot__o:hover .spot__edge { border-color: var(--acid); }
+body.reveal .spot.foot__o .spot__edge { border-color: var(--acid); }
+
+/* --- scattered deeds: the odd corners ----------------------------------- */
+.hero__rail {
+  position: absolute;
+  left: -2.4vw;
+  top: 4vh;
+  width: 34px;
+  height: clamp(160px, 26vh, 260px);
+}
+@media (max-width: 1200px) { .hero__rail { display: none; } }
+
+.shead { align-items: center; }
+.shead__pin { width: 26px; height: 26px; margin-right: auto; margin-left: 1.2rem; }
+
+.feed__sponsor {
+  /* A sponsored strip across the ledger. It was 54px, which made it ~24:1 and
+     left a buyer's picture as an unreadable sliver. Sized by ratio now so it
+     stays a banner at any panel width, with a floor so it never collapses. */
+  aspect-ratio: 8 / 1;
+  min-height: 110px;
+  max-height: 190px;
+  margin: 0.9rem 1.2rem;
+}
+
+.edit__rail {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.7rem;
+  margin-top: 0.9rem;
+}
+
+.foot__legalpin { width: 22px; height: 22px; }
+
+/* =========================================================================
+   One measure for the whole page. Below --maxw this is just the gutter;
+   above it the content stays put and the margins grow instead.
+   ========================================================================= */
+.nav, .hero, .proof, .strip, .how, .edit, .wall, .feed, .foot {
+  padding-inline: max(var(--gutter), (100% - var(--maxw)) / 2);
+}
+
+/* --- vertical annotation, for deeds living in the margin ---------------- */
+.plabel--vertical {
+  left: calc(100% + 12px);
+  top: 0;
+  writing-mode: vertical-rl;
+  flex-direction: column;
+  align-items: center;
+  letter-spacing: 0.18em;
+}
+.plabel--vertical::before { width: 1px; height: 26px; }
+
+/* =========================================================================
+   TICKER — a marquee that carries deeds along with the words
+   ========================================================================= */
+.ticker {
+  padding: 0;
+  overflow: hidden;
+  border-block: var(--rule) solid var(--ink-line);
+  background: rgba(10, 10, 14, 0.4);
+  padding-block: clamp(1.2rem, 2.4vh, 2.2rem);
+}
+.ticker__track {
+  display: flex;
+  width: max-content;
+  will-change: transform;
+}
+.ticker__row {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.4rem, 3vw, 3rem);
+  padding-right: clamp(1.4rem, 3vw, 3rem);
+  flex: none;
+}
+.ticker__row > span {
+  font-variation-settings: 'wdth' 116, 'wght' 800;
+  font-size: clamp(2rem, 5.2vw, 5rem);
+  line-height: 0.9;
+  letter-spacing: -0.03em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: transparent;
+  -webkit-text-stroke: 1px rgba(237, 234, 225, 0.42);
+  transition: color 0.5s, -webkit-text-stroke-color 0.5s;
+}
+.ticker:hover .ticker__row > span { color: var(--bone); -webkit-text-stroke-color: transparent; }
+
+.ticker__spot {
+  width: clamp(2rem, 5vw, 4.6rem);
+  height: clamp(2rem, 5vw, 4.6rem);
+  flex: none;
+  align-self: center;
+}
+.ticker__spot .spot__edge { border-width: 2px; border-color: var(--acid); }
+.ticker__spot[data-shape='pill'] { width: clamp(3.4rem, 8vw, 7.5rem); }
+
+/* =========================================================================
+   STUDIO — where an owner places their picture
+   ========================================================================= */
+.studio, .namer {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  padding: var(--gutter);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.4s, visibility 0.4s;
+}
+.studio.is-open, .namer.is-open { visibility: visible; opacity: 1; }
+.studio__scrim { position: absolute; inset: 0; background: rgba(4, 4, 6, 0.85); backdrop-filter: blur(14px); }
+
+.studio__card, .namer__card {
+  position: relative;
+  /* --card-w is set per deed: a 24:1 ledger strip needs far more room than a
+     square pin, and clipping its preview is what made PAR-27 look broken */
+  width: min(var(--card-w, 520px), 100%);
+  max-height: 92vh;
+  overflow-y: auto;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 8px;
+  background: var(--ink-raise);
+  padding: 1.8rem;
+  transform: translateY(18px) scale(0.98);
+  transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.studio.is-open .studio__card, .namer.is-open .namer__card { transform: none; }
+
+.studio__head { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 1.4rem; }
+.studio__id { font-variation-settings: 'wdth' 115, 'wght' 750; font-size: 1.6rem; line-height: 1; letter-spacing: -0.02em; }
+.studio__tier { color: var(--acid); margin-top: 0.45rem; display: block; }
+
+.studio__stage { display: grid; place-items: center; padding: 0.5rem 0 1.2rem; }
+
+.studio__frame {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  border: var(--rule) solid var(--ink-line-2);
+  cursor: grab;
+  touch-action: none;
+}
+.studio__frame:active { cursor: grabbing; }
+.studio__frame.is-dropping { border-color: var(--acid); box-shadow: 0 0 0 1px var(--acid); }
+.studio__frame[data-shape='circle'] { border-radius: 50%; }
+.studio__frame[data-shape='pill'] { border-radius: 999px; }
+.studio__frame[data-shape='arch'] { border-radius: 50% 50% 4px 4px / 44% 44% 4px 4px; }
+.studio__frame[data-shape='diamond'] { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); }
+
+/* anchored to the frame's centre so the -50%/-50% offset and the rotation
+   both pivot about the middle rather than the top-left corner */
+.studio__layer { position: absolute; left: 50%; top: 50%; will-change: transform; }
+.studio__media { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; }
+
+.studio__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  gap: 0.5rem;
+  text-align: center;
+  padding: 1rem;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.studio__empty b { font-variation-settings: 'wdth' 112, 'wght' 700; font-size: 1.05rem; color: var(--bone-dim); }
+.studio__empty em { font-style: normal; color: var(--bone-mute); }
+.studio.has-media .studio__empty { opacity: 0; }
+
+/* rule-of-thirds guide, only once there is something to place */
+.studio__grid { position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity 0.3s; }
+.studio.has-media .studio__grid { opacity: 0.22; }
+.studio__grid::before, .studio__grid::after {
+  content: '';
+  position: absolute;
+  background:
+    linear-gradient(var(--bone), var(--bone)) 33.33% 0 / 1px 100% no-repeat,
+    linear-gradient(var(--bone), var(--bone)) 66.66% 0 / 1px 100% no-repeat;
+  inset: 0;
+}
+.studio__grid::after {
+  background:
+    linear-gradient(var(--bone), var(--bone)) 0 33.33% / 100% 1px no-repeat,
+    linear-gradient(var(--bone), var(--bone)) 0 66.66% / 100% 1px no-repeat;
+}
+
+.studio__controls { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+.studio__zoom { display: flex; align-items: center; gap: 0.7rem; flex: 1; min-width: 160px; }
+.studio__zoom span { color: var(--bone-mute); }
+.studio__zoom input { flex: 1; accent-color: var(--acid); }
+.studio__zoom input:disabled { opacity: 0.35; }
+
+.studio__field { display: block; margin-bottom: 1.1rem; }
+.studio__field span { display: block; color: var(--bone-mute); margin-bottom: 0.5rem; }
+.studio__field input {
+  width: 100%;
+  padding: 0.75rem 0.9rem;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.35);
+  color: var(--bone);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.82rem;
+}
+.studio__field input:focus { outline: none; border-color: var(--acid); }
+
+.studio__status { min-height: 1.1em; margin-bottom: 1rem; color: var(--bone-mute); }
+.studio__status[data-kind='ok'] { color: var(--acid); }
+.studio__status[data-kind='bad'] { color: var(--ember); }
+
+/* --- wallet chip in the nav -------------------------------------------- */
+.walletchip {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.45rem 0.55rem 0.45rem 0.9rem;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 100px;
+}
+.walletchip[hidden] { display: none; }
+.walletchip__name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--mono);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--bone);
+}
+.walletchip__name:hover { color: var(--acid); }
+.walletchip__bal { color: var(--acid); }
+.walletchip__x {
+  width: 20px; height: 20px;
+  display: grid; place-items: center;
+  border-radius: 50%;
+  color: var(--bone-mute);
+  line-height: 1;
+}
+.walletchip__x:hover { color: var(--ember); }
+
+.modal__wallet { color: var(--bone-mute); margin-bottom: 1rem; min-height: 1.1em; }
+.modal__wallet[data-kind='bad'] { color: var(--ember); }
+.modal__wallet[data-kind='ok'] { color: var(--acid); }
+.modal__actions .btn[hidden] { display: none; }
+
+/* --- rotate row in the studio ------------------------------------------ */
+.studio__rotate {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  margin-bottom: 1.2rem;
+}
+.studio__rotate > span:first-child { color: var(--bone-mute); flex: none; }
+.studio__rotate input[type='range'] { flex: 1; min-width: 80px; accent-color: var(--acid); }
+.studio__rotate input:disabled { opacity: 0.35; }
+.studio__deg {
+  color: var(--bone);
+  min-width: 3.4em;
+  text-align: right;
+  flex: none;
+  font-variant-numeric: tabular-nums;
+}
+
+.turnbtn {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border: var(--rule) solid var(--ink-line-2);
+  border-radius: 4px;
+  color: var(--bone-dim);
+  font-size: 15px;
+  line-height: 1;
+  transition: color 0.25s, border-color 0.25s, background 0.25s;
+}
+.turnbtn:hover:not(:disabled) { color: var(--ink); background: var(--acid); border-color: var(--acid); }
+.turnbtn:disabled { opacity: 0.3; }
+.turnbtn--text {
+  width: auto;
+  padding: 0 0.6rem;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.feed__row--empty .feed__what { color: var(--bone-mute); }
+
+/* =========================================================================
+   SCROLL RULE — a surveyor's staff for the page itself.
+   Ticks mark each section, the fill shows how far down you are, and the
+   readout travels with you. Purely an indicator: it never takes a click,
+   so it can never sit on top of a deed.
+   ========================================================================= */
+.staff {
+  position: fixed;
+  right: max(14px, calc(var(--gutter) * 0.35));
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 40;
+  height: min(46vh, 420px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.7rem;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.6s;
+}
+.staff.is-live { opacity: 1; }
+@media (max-width: 900px) { .staff { display: none; } }
+
+.staff__track {
+  position: relative;
+  flex: 1;
+  width: 1px;
+  background: var(--ink-line-2);
+}
+
+/* how far you have come */
+.staff__fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 0%;
+  background: linear-gradient(var(--acid), rgba(200, 255, 46, 0.35));
+  will-change: height;
+}
+
+/* one notch per section */
+.staff__ticks { position: absolute; inset: 0; }
+.staff__tick {
+  position: absolute;
+  right: 0;
+  width: 7px;
+  height: 1px;
+  background: var(--ink-line-2);
+  transition: background 0.4s, width 0.4s;
+}
+.staff__tick.is-passed { background: var(--acid); width: 11px; }
+.staff__tick span {
+  position: absolute;
+  right: 13px;
+  top: -0.55em;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 0.14em;
+  color: var(--bone-mute);
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.4s, color 0.4s;
+}
+.staff__tick.is-near span { opacity: 1; color: var(--acid); }
+
+/* where you are now */
+.staff__marker {
+  position: absolute;
+  right: -4px;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  margin-top: -4px;
+  border-radius: 50%;
+  background: var(--acid);
+  box-shadow: 0 0 12px -2px var(--acid);
+  will-change: transform;
+}
+.staff__pct {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--acid);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  font-variant-numeric: tabular-nums;
+}
+
+.staff__end {
+  font-size: 8px;
+  letter-spacing: 0.18em;
+  color: var(--bone-mute);
+  transition: color 0.4s;
+}
+.staff.is-at-end .staff__end { color: var(--acid); }
+
+/* the deed's true size on the page. PAR-27 is a 24:1 strip, so its preview is
+   legitimately short — saying the number stops that reading as a bug. */
+.studio__dims {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: var(--ink-dim, rgba(237, 234, 225, 0.42));
+}

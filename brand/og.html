@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>SPOT — link preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=JetBrains+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* 1200x630 — the card shown when the link is posted on X, Telegram or
+         Discord. Read at thumbnail size in a feed, so it carries the mark, the
+         name and the one line that explains the whole thing. Nothing else. */
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      html, body { width: 1200px; height: 630px; overflow: hidden; }
+
+      .card {
+        position: relative;
+        width: 1200px;
+        height: 630px;
+        padding: 74px 84px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        background:
+          radial-gradient(75% 110% at 84% 112%, rgba(200, 255, 46, 0.16), transparent 60%),
+          radial-gradient(60% 90% at 6% -8%, rgba(255, 91, 35, 0.09), transparent 60%),
+          #07070A;
+        font-family: 'Archivo', system-ui, sans-serif;
+        color: #EDEAE1;
+      }
+
+      .lines {
+        position: absolute;
+        inset: 0;
+        opacity: 0.45;
+        background-image:
+          linear-gradient(rgba(237, 234, 225, 0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(237, 234, 225, 0.05) 1px, transparent 1px);
+        background-size: 60px 60px;
+        mask-image: radial-gradient(80% 80% at 60% 50%, #000 25%, transparent 100%);
+      }
+
+      .top {
+        position: relative;
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        font-family: 'JetBrains Mono', monospace;
+        font-size: 15px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        color: rgba(237, 234, 225, 0.5);
+      }
+      .top b { color: #C8FF2E; font-weight: 500; }
+
+      .word {
+        position: relative;
+        display: flex;
+        align-items: baseline;
+        font-variation-settings: 'wdth' 122, 'wght' 800;
+        font-size: 190px;
+        line-height: 0.8;
+        letter-spacing: -0.04em;
+        text-transform: uppercase;
+      }
+      .word i {
+        display: block;
+        width: 0.72em;
+        height: 0.72em;
+        margin-left: 0.085em;
+        margin-right: 0.05em;
+        margin-bottom: -0.015em;
+        border-radius: 50%;
+        border: 0.155em solid #C8FF2E;
+        box-shadow: 0 0 70px -8px rgba(200, 255, 46, 0.5);
+        flex: none;
+      }
+
+      .bottom { position: relative; display: flex; align-items: flex-end; justify-content: space-between; gap: 40px; }
+      .line {
+        font-size: 30px;
+        line-height: 1.32;
+        max-width: 22ch;
+        color: rgba(237, 234, 225, 0.72);
+      }
+      .line b { color: #EDEAE1; font-weight: 600; }
+
+      .facts { text-align: right; font-family: 'JetBrains Mono', monospace; }
+      .facts div { font-size: 13px; letter-spacing: 0.2em; text-transform: uppercase; color: rgba(237, 234, 225, 0.4); }
+      .facts b { display: block; font-size: 34px; color: #C8FF2E; font-weight: 500; letter-spacing: -0.01em; margin-bottom: 4px; }
+
+      .grain {
+        position: absolute;
+        inset: 0;
+        opacity: 0.045;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='180' height='180' filter='url(%23n)'/%3E%3C/svg%3E");
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <div class="top"><b>Solana</b><span>35 deeds</span><span>Every inch is for sale</span></div>
+
+      <div class="word">SP<i></i>T</div>
+
+      <div class="bottom">
+        <p class="line">
+          Buy a spot. Put what you want in it. Anyone can take it off you for
+          <b>1.5&times;</b>.
+        </p>
+        <div class="facts">
+          <b>100%</b>
+          <div>Burned on first claim</div>
+        </div>
+      </div>
+
+      <div class="lines"></div>
+      <div class="grain"></div>
+    </div>
+  </body>
+</html>
